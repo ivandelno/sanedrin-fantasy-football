@@ -1,0 +1,197 @@
+:root {
+  /* Colors - Primary Palette */
+  --color-primary-50: hsl(220, 100%, 97%);
+  --color-primary-100: hsl(220, 95%, 92%);
+  --color-primary-200: hsl(220, 90%, 85%);
+  --color-primary-300: hsl(220, 85%, 75%);
+  --color-primary-400: hsl(220, 80%, 65%);
+  --color-primary-500: hsl(220, 75%, 55%);
+  --color-primary-600: hsl(220, 70%, 45%);
+  --color-primary-700: hsl(220, 65%, 35%);
+  --color-primary-800: hsl(220, 60%, 25%);
+  --color-primary-900: hsl(220, 55%, 15%);
+
+  /* Colors - Success (Green for SUMAR) */
+  --color-success-50: hsl(142, 76%, 96%);
+  --color-success-100: hsl(142, 76%, 88%);
+  --color-success-200: hsl(142, 72%, 76%);
+  --color-success-300: hsl(142, 68%, 64%);
+  --color-success-400: hsl(142, 64%, 52%);
+  --color-success-500: hsl(142, 70%, 42%);
+  --color-success-600: hsl(142, 76%, 32%);
+  --color-success-700: hsl(142, 80%, 24%);
+  --color-success-800: hsl(142, 84%, 18%);
+  --color-success-900: hsl(142, 88%, 12%);
+
+  /* Colors - Danger (Red for RESTAR) */
+  --color-danger-50: hsl(0, 86%, 97%);
+  --color-danger-100: hsl(0, 86%, 92%);
+  --color-danger-200: hsl(0, 82%, 84%);
+  --color-danger-300: hsl(0, 78%, 74%);
+  --color-danger-400: hsl(0, 74%, 64%);
+  --color-danger-500: hsl(0, 72%, 54%);
+  --color-danger-600: hsl(0, 76%, 44%);
+  --color-danger-700: hsl(0, 80%, 34%);
+  --color-danger-800: hsl(0, 84%, 26%);
+  --color-danger-900: hsl(0, 88%, 18%);
+
+  /* Colors - Warning (Orange) */
+  --color-warning-50: hsl(38, 92%, 95%);
+  --color-warning-100: hsl(38, 92%, 88%);
+  --color-warning-200: hsl(38, 88%, 76%);
+  --color-warning-300: hsl(38, 84%, 64%);
+  --color-warning-400: hsl(38, 80%, 52%);
+  --color-warning-500: hsl(38, 90%, 48%);
+  --color-warning-600: hsl(38, 95%, 40%);
+  --color-warning-700: hsl(38, 100%, 32%);
+  --color-warning-800: hsl(38, 100%, 24%);
+  --color-warning-900: hsl(38, 100%, 16%);
+
+  /* Colors - Neutral */
+  --color-neutral-50: hsl(220, 20%, 98%);
+  --color-neutral-100: hsl(220, 18%, 94%);
+  --color-neutral-200: hsl(220, 16%, 88%);
+  --color-neutral-300: hsl(220, 14%, 76%);
+  --color-neutral-400: hsl(220, 12%, 64%);
+  --color-neutral-500: hsl(220, 10%, 52%);
+  --color-neutral-600: hsl(220, 12%, 40%);
+  --color-neutral-700: hsl(220, 14%, 28%);
+  --color-neutral-800: hsl(220, 16%, 18%);
+  --color-neutral-900: hsl(220, 18%, 10%);
+
+  /* Semantic Colors */
+  --color-background: hsl(220, 20%, 98%);
+  --color-surface: hsl(0, 0%, 100%);
+  --color-surface-elevated: hsl(0, 0%, 100%);
+  --color-text-primary: hsl(220, 18%, 10%);
+  --color-text-secondary: hsl(220, 12%, 40%);
+  --color-text-tertiary: hsl(220, 10%, 64%);
+  --color-border: hsl(220, 16%, 88%);
+  --color-border-hover: hsl(220, 14%, 76%);
+
+  /* Typography */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-heading: 'Outfit', 'Inter', sans-serif;
+  --font-family-mono: 'Fira Code', 'Courier New', monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing (4px base grid) */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-20: 5rem;     /* 80px */
+  --spacing-24: 6rem;     /* 96px */
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-base: 0.5rem;  /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* Breakpoints (for reference in JS) */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: hsl(220, 18%, 10%);
+    --color-surface: hsl(220, 16%, 14%);
+    --color-surface-elevated: hsl(220, 14%, 18%);
+    --color-text-primary: hsl(220, 20%, 98%);
+    --color-text-secondary: hsl(220, 12%, 76%);
+    --color-text-tertiary: hsl(220, 10%, 52%);
+    --color-border: hsl(220, 14%, 24%);
+    --color-border-hover: hsl(220, 12%, 32%);
+  }
+}
+
+/* Utility: Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Utility: Gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, var(--color-success-500), var(--color-success-700));
+}
+
+.gradient-danger {
+  background: linear-gradient(135deg, var(--color-danger-500), var(--color-danger-700));
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, 
+    hsl(220, 75%, 55%), 
+    hsl(260, 75%, 55%), 
+    hsl(300, 75%, 55%)
+  );
+}

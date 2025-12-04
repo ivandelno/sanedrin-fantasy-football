@@ -1,0 +1,183 @@
+/* Additional styles for updated pages */
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background: var(--color-success-100);
+    color: var(--color-success-700);
+}
+
+.badge-danger {
+    background: var(--color-danger-100);
+    color: var(--color-danger-700);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.badge-warning {
+    background: var(--color-warning-100);
+    color: var(--color-warning-700);
+}
+
+.badge-neutral {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+}
+
+.badge-primary {
+    background: var(--color-primary-100);
+    color: var(--color-primary-700);
+}
+
+.badge-secondary {
+    background: hsl(280, 70%, 95%);
+    color: hsl(280, 70%, 40%);
+}
+
+.badge-champions {
+    background: linear-gradient(135deg, hsl(220, 80%, 95%), hsl(260, 80%, 95%));
+    color: hsl(240, 80%, 40%);
+}
+
+/* Match item enhanced */
+.match-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+}
+
+.match-item:hover {
+    background: var(--color-neutral-50);
+    border-color: var(--color-primary-300);
+    box-shadow: var(--shadow-sm);
+}
+
+.match-time-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.match-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-lg);
+}
+
+.team-name {
+    flex: 1;
+    font-weight: var(--font-weight-medium);
+}
+
+.team-name:last-child {
+    text-align: right;
+}
+
+.match-score {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary-700);
+    padding: 0 var(--spacing-4);
+}
+
+.match-vs {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    padding: 0 var(--spacing-4);
+}
+
+.match-league {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Highlight row for user */
+.highlight-row {
+    position: relative;
+}
+
+.highlight-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-primary-600);
+    border-radius: var(--radius-sm);
+}
+
+/* Responsive match items */
+@media (min-width: 768px) {
+    .match-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .match-time-status {
+        min-width: 180px;
+    }
+
+    .match-teams {
+        flex: 1;
+    }
+
+    .match-league {
+        min-width: 120px;
+    }
+}
+
+/* Loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--color-neutral-200);
+    border-top-color: var(--color-primary-600);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-4);
+}
+
+.empty-state-icon {
+    font-size: var(--font-size-5xl);
+    color: var(--color-neutral-300);
+    margin-bottom: var(--spacing-4);
+}
+
+.empty-state-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-2);
+}
+
+.empty-state-description {
+    color: var(--color-text-secondary);
+}
