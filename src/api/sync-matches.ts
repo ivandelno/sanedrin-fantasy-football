@@ -34,15 +34,16 @@ export async function syncMatchesEndpoint() {
     }
 }
 
+
 // For direct Node.js execution (GitHub Actions)
-if (require.main === module) {
-    syncMatchesEndpoint()
-        .then(result => {
-            console.log(JSON.stringify(result, null, 2));
-            process.exit(result.success ? 0 : 1);
-        })
-        .catch(error => {
-            console.error('Fatal error:', error);
-            process.exit(1);
-        });
-}
+// Execute immediately when run as a script
+syncMatchesEndpoint()
+    .then(result => {
+        console.log(JSON.stringify(result, null, 2));
+        process.exit(result.success ? 0 : 1);
+    })
+    .catch(error => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+    });
+
