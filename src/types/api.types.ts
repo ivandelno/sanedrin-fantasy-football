@@ -17,6 +17,7 @@ export interface APILeague {
     name: string;
     type: string;
     logo: string;
+    round?: string; // Optional round/matchday info
 }
 
 export interface APICountry {
