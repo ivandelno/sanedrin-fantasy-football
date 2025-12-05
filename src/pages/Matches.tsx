@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useActiveSeason } from '../hooks/useSeason';
 import { useMatches } from '../hooks/useMatches';
+import { useParticipantSelections } from '../hooks/useParticipantSelections';
 import { League } from '../types/database.types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -15,16 +16,23 @@ export default function MatchesPage() {
     const [syncResult, setSyncResult] = useState<{ total: number; updated: number; errors: string[] } | null>(null);
 
     const { user } = useAuthStore();
-    console.log('Current user:', user);
-    console.log('Is admin?', user?.is_admin);
     const queryClient = useQueryClient();
 
     const { data: season } = useActiveSeason();
     const { data: matches, isLoading } = useMatches({
-        seasonId: season?.id || '', // Should be string UUID but hook might expect number? Let's check hook later if needed.
+        seasonId: season?.id || '',
         league: selectedLeague === 'all' ? undefined : selectedLeague,
         enabled: !!season
     });
+
+    // Get user's selected teams
+    const { data: participantData } = useParticipantSelections(user?.id, season?.id, !!user && !!season);
+
+    // Extract team IDs from selections for easy lookup
+    const userTeamIds = useMemo(() => {
+        if (!participantData?.selections) return new Set<string>();
+        return new Set(participantData.selections.map(s => s.team_id));
+    }, [participantData]);
 
     const handleSync = async () => {
         if (!season || !confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.')) return;
@@ -35,9 +43,8 @@ export default function MatchesPage() {
         try {
             const result = await footballApiService.syncMatches(season.id);
             setSyncResult(result);
-            // Invalidate queries to refresh data
             queryClient.invalidateQueries({ queryKey: ['matches'] });
-            alert(`Sincronización completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+            alert(`Sincronización completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
         } catch (error) {
             console.error('Sync error:', error);
             alert('Error al sincronizar partidos. Revisa la consola.');
@@ -103,6 +110,21 @@ export default function MatchesPage() {
     }, {} as Record<number, typeof matches>);
 
     const matchdays = matchesByMatchday ? Object.keys(matchesByMatchday).sort((a, b) => parseInt(b) - parseInt(a)) : [];
+
+    // Filter matches by user's teams if checkbox is enabled
+    const getFilteredMatches = (matchdayMatches: typeof matches) => {
+        if (!onlyMyTeams || !matchdayMatches) return matchdayMatches;
+
+        // Filter matches where home_team_id or away_team_id is in user's selected teams
+        return matchdayMatches.filter(match =>
+            userTeamIds.has(match.home_team_id) || userTeamIds.has(match.away_team_id)
+        );
+    };
+
+    // Helper function to check if a team is selected by the user
+    const isUserTeam = (teamId: string): boolean => {
+        return userTeamIds.has(teamId);
+    };
 
     return (
         <div className="page">
@@ -185,39 +207,62 @@ export default function MatchesPage() {
                     </p>
                 </div>
             ) : (
-                matchdays.map(matchday => (
-                    <div key={matchday} className="card mb-4">
-                        <h3>Jornada {matchday}</h3>
-                        <div className="matches-list">
-                            {matchesByMatchday![parseInt(matchday)].map(match => (
-                                <div key={match.id} className="match-item">
-                                    <div className="match-time-status">
-                                        <div className="match-time">
-                                            {formatMatchTime(match.utc_datetime, match.status)}
+                matchdays.map(matchday => {
+                    const filteredMatches = getFilteredMatches(matchesByMatchday![parseInt(matchday)]);
+
+                    // Skip matchday if no matches after filtering
+                    if (!filteredMatches || filteredMatches.length === 0) return null;
+
+                    return (
+                        <div key={matchday} className="card mb-4">
+                            <h3>Jornada {matchday}</h3>
+                            <div className="matches-list">
+                                {filteredMatches.map(match => (
+                                    <div key={match.id} className="match-item">
+                                        <div className="match-time-status">
+                                            <div className="match-time">
+                                                {formatMatchTime(match.utc_datetime, match.status)}
+                                            </div>
+                                            {getStatusBadge(match.status)}
                                         </div>
-                                        {getStatusBadge(match.status)}
-                                    </div>
 
-                                    <div className="match-teams">
-                                        <span className="team-name">{match.home_team.name}</span>
-                                        {match.status === 'FINISHED' && match.home_score !== null && match.away_score !== null ? (
-                                            <span className="match-score">
-                                                {match.home_score} - {match.away_score}
+                                        <div className="match-teams">
+                                            <span
+                                                className="team-name"
+                                                style={{
+                                                    fontWeight: isUserTeam(match.home_team_id) ? 'bold' : 'normal',
+                                                    color: isUserTeam(match.home_team_id) ? 'var(--color-success-600)' : 'inherit'
+                                                }}
+                                            >
+                                                {match.home_team.name}
                                             </span>
-                                        ) : (
-                                            <span className="match-vs">vs</span>
-                                        )}
-                                        <span className="team-name">{match.away_team.name}</span>
-                                    </div>
+                                            {match.status === 'FINISHED' && match.home_score !== null && match.away_score !== null ? (
+                                                <span className="match-score">
+                                                    {match.home_score} - {match.away_score}
+                                                </span>
+                                            ) : (
+                                                <span className="match-vs">vs</span>
+                                            )}
+                                            <span
+                                                className="team-name"
+                                                style={{
+                                                    fontWeight: isUserTeam(match.away_team_id) ? 'bold' : 'normal',
+                                                    color: isUserTeam(match.away_team_id) ? 'var(--color-success-600)' : 'inherit'
+                                                }}
+                                            >
+                                                {match.away_team.name}
+                                            </span>
+                                        </div>
 
-                                    <div className="match-league">
-                                        {getLeagueBadge(match.league)}
+                                        <div className="match-league">
+                                            {getLeagueBadge(match.league)}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))
+                    );
+                })
             )}
         </div>
     );
