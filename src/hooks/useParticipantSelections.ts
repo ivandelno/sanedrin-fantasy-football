@@ -24,9 +24,16 @@ export function useParticipantSelections(userId: string | undefined, seasonId: s
             // Then get their team selections
             const selections = await databaseService.getParticipantSelections(participant.id);
 
+            // Create a map of team_id -> role for easy lookup
+            const teamRoles = new Map<string, string>();
+            selections.forEach(selection => {
+                teamRoles.set(selection.team_id, selection.role);
+            });
+
             return {
                 participantId: participant.id,
-                selections: selections
+                selections: selections,
+                teamRoles: teamRoles
             };
         },
         enabled: enabled && !!userId && !!seasonId,

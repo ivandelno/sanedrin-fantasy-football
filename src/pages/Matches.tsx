@@ -28,11 +28,37 @@ export default function MatchesPage() {
     // Get user's selected teams
     const { data: participantData } = useParticipantSelections(user?.id, season?.id, !!user && !!season);
 
-    // Extract team IDs from selections for easy lookup
+    // Extract team IDs and roles from selections for easy lookup
     const userTeamIds = useMemo(() => {
-        if (!participantData?.selections) return new Set<string>();
-        return new Set(participantData.selections.map(s => s.team_id));
+        if (!participantData?.teamRoles) return new Set<string>();
+        return new Set(participantData.teamRoles.keys());
     }, [participantData]);
+
+    // Get the role of a team (SUMAR, RESTAR, SUPLENTE)
+    const getTeamRole = (teamId: string): string | undefined => {
+        return participantData?.teamRoles?.get(teamId);
+    };
+
+    // Get color and style for a team based on its role
+    const getTeamStyle = (teamId: string) => {
+        const role = getTeamRole(teamId);
+        if (!role) return { fontWeight: 'normal' as const, color: 'inherit' };
+
+        if (role === 'SUMAR') {
+            return {
+                fontWeight: 'bold' as const,
+                color: 'var(--color-success-600)'
+            };
+        } else if (role === 'RESTAR') {
+            return {
+                fontWeight: 'bold' as const,
+                color: 'var(--color-danger-600)'
+            };
+        }
+
+        // SUPLENTE or other roles - normal style
+        return { fontWeight: 'normal' as const, color: 'inherit' };
+    };
 
     const handleSync = async () => {
         if (!season || !confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.')) return;
@@ -119,11 +145,6 @@ export default function MatchesPage() {
         return matchdayMatches.filter(match =>
             userTeamIds.has(match.home_team_id) || userTeamIds.has(match.away_team_id)
         );
-    };
-
-    // Helper function to check if a team is selected by the user
-    const isUserTeam = (teamId: string): boolean => {
-        return userTeamIds.has(teamId);
     };
 
     return (
@@ -229,10 +250,7 @@ export default function MatchesPage() {
                                         <div className="match-teams">
                                             <span
                                                 className="team-name"
-                                                style={{
-                                                    fontWeight: isUserTeam(match.home_team_id) ? 'bold' : 'normal',
-                                                    color: isUserTeam(match.home_team_id) ? 'var(--color-success-600)' : 'inherit'
-                                                }}
+                                                style={getTeamStyle(match.home_team_id)}
                                             >
                                                 {match.home_team.name}
                                             </span>
@@ -245,10 +263,7 @@ export default function MatchesPage() {
                                             )}
                                             <span
                                                 className="team-name"
-                                                style={{
-                                                    fontWeight: isUserTeam(match.away_team_id) ? 'bold' : 'normal',
-                                                    color: isUserTeam(match.away_team_id) ? 'var(--color-success-600)' : 'inherit'
-                                                }}
+                                                style={getTeamStyle(match.away_team_id)}
                                             >
                                                 {match.away_team.name}
                                             </span>
