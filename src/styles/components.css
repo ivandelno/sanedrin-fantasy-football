@@ -105,21 +105,7 @@
     justify-content: flex-end;
 }
 
-/* Highlight row for user */
-.highlight-row {
-    position: relative;
-}
-
-.highlight-row::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--color-primary-600);
-    border-radius: var(--radius-sm);
-}
+/* Highlight row for user */\n/* Moved to pages.css with table-specific styles */
 
 /* Responsive match items */
 @media (min-width: 768px) {
