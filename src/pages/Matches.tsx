@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useActiveSeason } from '../hooks/useSeason';
 import { useMatches } from '../hooks/useMatches';
 import { useParticipantSelections } from '../hooks/useParticipantSelections';
@@ -83,6 +83,42 @@ export default function MatchesPage() {
         }
     };
 
+    // Get available matchdays for selected league
+    const availableMatchdays = useMemo(() => {
+        if (!matches || selectedLeague === 'all') return [];
+
+        const matchdays = new Set<number>();
+        matches
+            .filter(match => match.league === selectedLeague)
+            .forEach(match => {
+                matchdays.add(match.matchday);
+            });
+
+        return Array.from(matchdays).sort((a, b) => b - a); // Descending order
+    }, [matches, selectedLeague]);
+
+    // Handle league change
+    const handleLeagueChange = (league: 'all' | League) => {
+        setSelectedLeague(league);
+        if (league !== 'all') {
+            setViewMode('matchday');
+            setSelectedMatchday(null); // Reset to trigger auto-selection in useEffect
+        } else {
+            setViewMode('day');
+            setSelectedMatchday(null);
+        }
+    };
+
+    // Auto-select the most recent matchday when availableMatchdays updates
+    useEffect(() => {
+        if (selectedLeague !== 'all' && availableMatchdays.length > 0) {
+            // If no matchday is selected, or the selected one is not in the list (e.g. switched leagues)
+            if (selectedMatchday === null || !availableMatchdays.includes(selectedMatchday)) {
+                setSelectedMatchday(availableMatchdays[0]);
+            }
+        }
+    }, [availableMatchdays, selectedLeague, selectedMatchday]);
+
     // Filter matches by date range or matchday
     const filteredMatches = useMemo(() => {
         if (!matches) return [];
@@ -123,18 +159,6 @@ export default function MatchesPage() {
         return filtered;
     }, [matches, viewMode, selectedMatchday, onlyMyTeams, userTeamIds]);
 
-    // Get available matchdays for selected league
-    const availableMatchdays = useMemo(() => {
-        if (!matches || selectedLeague === 'all') return [];
-
-        const matchdays = new Set<number>();
-        matches.forEach(match => {
-            matchdays.add(match.matchday);
-        });
-
-        return Array.from(matchdays).sort((a, b) => b - a); // Descending order
-    }, [matches, selectedLeague]);
-
     // Group matches by league and matchday
     const groupedMatches = useMemo(() => {
         const groups: Record<string, typeof filteredMatches> = {};
@@ -171,21 +195,6 @@ export default function MatchesPage() {
 
         return result;
     }, [filteredMatches]);
-
-    // Handle league change
-    const handleLeagueChange = (league: 'all' | League) => {
-        setSelectedLeague(league);
-        if (league !== 'all') {
-            setViewMode('matchday');
-            // Select the most recent matchday by default
-            if (availableMatchdays.length > 0) {
-                setSelectedMatchday(availableMatchdays[0]);
-            }
-        } else {
-            setViewMode('day');
-            setSelectedMatchday(null);
-        }
-    };
 
     if (!season) {
         return (
