@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { databaseService } from '../services/database.service';
 
-export function useStandings(seasonId: number, enabled: boolean = true) {
+export function useStandings(seasonId: string, enabled: boolean = true) {
     return useQuery({
         queryKey: ['standings', seasonId],
         queryFn: () => databaseService.getStandings(seasonId),
@@ -11,7 +11,7 @@ export function useStandings(seasonId: number, enabled: boolean = true) {
     });
 }
 
-export function useUserPosition(seasonId: number, userId: number) {
+export function useUserPosition(seasonId: string, userId: string) {
     const { data: standings, ...rest } = useStandings(seasonId);
 
     const userStanding = standings?.find(s => s.user_id === userId);

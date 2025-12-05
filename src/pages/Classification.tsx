@@ -6,7 +6,7 @@ import { FaMedal, FaMinus } from 'react-icons/fa';
 export default function ClassificationPage() {
     const { user } = useAuthStore();
     const { data: season } = useActiveSeason();
-    const { data: standings, isLoading } = useStandings(season?.id || 0, !!season);
+    const { data: standings, isLoading } = useStandings(season?.id || '', !!season);
 
     if (!season) {
         return (

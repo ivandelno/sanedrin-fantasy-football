@@ -7,8 +7,8 @@ export default function HomePage() {
     const { user } = useAuthStore();
     const { data: season } = useActiveSeason();
     const { position, points, positionChange, isLoading } = useUserPosition(
-        season?.id || 0,
-        user?.id || 0
+        season?.id || '',
+        user?.id || ''
     );
 
     if (!season) {

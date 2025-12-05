@@ -161,7 +161,11 @@ class DatabaseService {
     // Standings
     // ============================================
 
-    async getStandings(seasonId: number): Promise<ParticipantStanding[]> {
+    // ============================================
+    // Standings
+    // ============================================
+
+    async getStandings(seasonId: string): Promise<ParticipantStanding[]> {
         const { data, error } = await supabase.rpc('get_participant_standings', {
             p_season_id: seasonId
         });
@@ -174,7 +178,7 @@ class DatabaseService {
     // Participant Selections
     // ============================================
 
-    async getParticipantSelections(participantId: number): Promise<ParticipantSelection[]> {
+    async getParticipantSelections(participantId: string): Promise<ParticipantSelection[]> {
         const { data, error } = await supabase
             .from('participant_selections')
             .select('*')
@@ -193,7 +197,7 @@ class DatabaseService {
         if (error) throw error;
     }
 
-    async submitParticipantSelections(participantId: number): Promise<void> {
+    async submitParticipantSelections(participantId: string): Promise<void> {
         const { error } = await supabase
             .from('season_participants')
             .update({ selection_submitted: true })
@@ -228,7 +232,7 @@ class DatabaseService {
         return data;
     }
 
-    async updateSeason(id: number, updates: Partial<Season>): Promise<Season> {
+    async updateSeason(id: string, updates: Partial<Season>): Promise<Season> {
         const { data, error } = await supabase
             .from('seasons')
             .update(updates)
@@ -269,7 +273,7 @@ class DatabaseService {
     // News
     // ============================================
 
-    async getNews(seasonId: number, publishedOnly: boolean = true): Promise<any[]> {
+    async getNews(seasonId: string, publishedOnly: boolean = true): Promise<any[]> {
         let query = supabase
             .from('news')
             .select(`
@@ -291,7 +295,7 @@ class DatabaseService {
         return data;
     }
 
-    async createNews(seasonId: number, authorUserId: number, title: string, content: string): Promise<any> {
+    async createNews(seasonId: string, authorUserId: string, title: string, content: string): Promise<any> {
         const { data, error } = await supabase
             .from('news')
             .insert({
@@ -308,7 +312,7 @@ class DatabaseService {
         return data;
     }
 
-    async publishNews(newsId: number): Promise<void> {
+    async publishNews(newsId: string): Promise<void> {
         const { error } = await supabase
             .from('news')
             .update({ published: true })

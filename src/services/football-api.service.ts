@@ -173,7 +173,7 @@ class FootballApiService {
             // Filter for our leagues
             const ourLeagueIds = Object.values(LEAGUE_CONFIG).map(config => config.id);
             const relevantMatches = dayMatches.filter(match =>
-                ourLeagueIds.includes(match.league.id as number)
+                ourLeagueIds.includes(match.league.id as any)
             );
 
             console.log(`  -> ${relevantMatches.length} matches for our leagues`);
