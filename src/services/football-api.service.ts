@@ -116,7 +116,7 @@ class FootballApiService {
             // Filter only matches from our leagues
             const ourLeagueIds = Object.values(LEAGUE_CONFIG).map(config => config.id);
             return response.data.response.filter(match =>
-                ourLeagueIds.includes(match.league.id as number)
+                ourLeagueIds.includes(match.league.id as any)
             );
         } catch (error) {
             console.error('Error fetching live matches:', error);
