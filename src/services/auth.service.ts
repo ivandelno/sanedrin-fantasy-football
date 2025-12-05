@@ -19,23 +19,22 @@ class AuthService {
 
     // Change password after verifying current password via RPC
     async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
-        // Verify current password
-        const { data: verified, error: verifyError } = await supabase.rpc('verify_user_password', {
-            p_uid: userId,
-            p_password: currentPassword,
+        const { data, error } = await supabase.rpc('change_user_password', {
+            p_user_id: userId,
+            p_current_password: currentPassword,
+            p_new_password: newPassword
         });
-        if (verifyError || !verified) {
-            throw new Error('Current password is incorrect');
+
+        if (error) {
+            // Check if it's a password verification error
+            if (error.message.includes('Current password is incorrect')) {
+                throw new Error('La contraseña actual es incorrecta');
+            }
+            throw new Error('Error al cambiar la contraseña');
         }
-        // Update password using crypt RPC
-        const { error: updateError } = await supabase
-            .from('users')
-            .update({
-                password_hash: await supabase.rpc('crypt', { password: newPassword, salt: await supabase.rpc('gen_salt', 'bf') }),
-            })
-            .eq('id', userId);
-        if (updateError) {
-            throw new Error('Failed to update password');
+
+        if (!data) {
+            throw new Error('Error al cambiar la contraseña');
         }
     }
 
