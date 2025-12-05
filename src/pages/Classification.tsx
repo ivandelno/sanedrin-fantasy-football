@@ -67,10 +67,6 @@ export default function ClassificationPage() {
                                     <tr
                                         key={standing.participant_id}
                                         className={standing.user_id === user?.id ? 'highlight-row' : ''}
-                                        style={{
-                                            backgroundColor: standing.user_id === user?.id ? 'var(--color-primary-50)' : undefined,
-                                            fontWeight: standing.user_id === user?.id ? 600 : undefined
-                                        }}
                                     >
                                         <td>
                                             <div className="flex items-center gap-2">
