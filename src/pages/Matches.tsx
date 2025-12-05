@@ -105,8 +105,10 @@ export default function MatchesPage() {
     };
 
     const formatMatchTime = (utcDatetime: string, status: string) => {
-        if (status === 'FINISHED') return 'Finalizado';
-        if (status === 'LIVE') return 'EN VIVO';
+        // Don't show status text here, only in badge
+        if (status === 'LIVE') {
+            return 'EN VIVO';
+        }
 
         try {
             const date = new Date(utcDatetime);
@@ -254,8 +256,8 @@ export default function MatchesPage() {
                                             >
                                                 {match.home_team.name}
                                             </span>
-                                            {match.status === 'FINISHED' && match.home_score !== null && match.away_score !== null ? (
-                                                <span className="match-score">
+                                            {(match.status === 'FINISHED' || match.status === 'LIVE') && match.home_score !== null && match.away_score !== null ? (
+                                                <span className={`match-score ${match.status === 'LIVE' ? 'live' : ''}`}>
                                                     {match.home_score} - {match.away_score}
                                                 </span>
                                             ) : (
