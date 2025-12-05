@@ -2,8 +2,15 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding-bottom: 70px;
-    /* Space for bottom navigation */
+    background-color: var(--color-background);
+}
+
+.top-bar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background-color: var(--color-surface);
+    width: 100%;
 }
 
 .main-content {
@@ -13,10 +20,4 @@
     width: 100%;
     margin: 0 auto;
     animation: fadeIn 0.3s ease-out;
-}
-
-@media (min-width: 768px) {
-    .layout {
-        padding-bottom: 0;
-    }
 }

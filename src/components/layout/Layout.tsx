@@ -10,11 +10,13 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
     return (
         <div className="layout">
-            <Header />
+            <div className="top-bar">
+                <Header />
+                <Navigation />
+            </div>
             <main className="main-content">
                 {children}
             </main>
-            <Navigation />
         </div>
     );
 }
