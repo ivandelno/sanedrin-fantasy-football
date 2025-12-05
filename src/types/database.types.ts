@@ -1,3 +1,12 @@
+// src/types/database.types.ts
+// Updated to match Supabase schema (UUID strings)
+
+import type { PointsBreakdown } from './points.types';
+
+export enum League {
+  PRIMERA = 'PRIMERA',
+  SEGUNDA = 'SEGUNDA',
+  CHAMPIONS = 'CHAMPIONS',
 }
 
 export enum Role {
