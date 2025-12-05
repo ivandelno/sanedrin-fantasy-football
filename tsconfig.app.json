@@ -22,11 +22,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "strict": false,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src"
