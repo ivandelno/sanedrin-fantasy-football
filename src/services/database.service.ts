@@ -182,8 +182,7 @@ class DatabaseService {
         const { data, error } = await supabase
             .from('participant_selections')
             .select('*')
-            .eq('participant_id', participantId)
-            .eq('is_active', true);
+            .eq('participant_id', participantId);
 
         if (error) throw error;
         return data;
