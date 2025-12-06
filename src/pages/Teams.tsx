@@ -15,11 +15,26 @@ interface GroupedParticipant {
 export default function TeamsPage() {
     const { data: season } = useActiveSeason();
 
-    const { data: participantsSummary, isLoading } = useQuery({
+    const { data: participantsSummary, isLoading, error } = useQuery({
         queryKey: ['participants-teams-summary', season?.id],
         queryFn: () => season ? databaseService.getParticipantsTeamsSummary(season.id) : Promise.resolve([]),
         enabled: !!season
     });
+
+    if (error) {
+        return (
+            <div className="page">
+                <div className="page-header">
+                    <h2>Equipos</h2>
+                </div>
+                <div className="card border-danger">
+                    <h3>Error al cargar equipos</h3>
+                    <p className="text-danger">{(error as Error).message}</p>
+                    <p>Asegúrate de haber ejecutado el script SQL 'get_participants_teams_summary.sql' en Supabase.</p>
+                </div>
+            </div>
+        );
+    }
 
     const groupedParticipants = useMemo(() => {
         if (!participantsSummary) return [];
