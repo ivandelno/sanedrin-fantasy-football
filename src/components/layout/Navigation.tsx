@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaTrophy, FaFutbol, FaCog, FaShieldAlt } from 'react-icons/fa';
+import { FaHome, FaTrophy, FaFutbol, FaCog, FaShieldAlt, FaUsers } from 'react-icons/fa';
 import { useAuthStore } from '../../stores/auth.store';
 import './Navigation.css';
 
@@ -21,6 +21,11 @@ export default function Navigation() {
             <NavLink to="/matches" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                 <FaFutbol className="nav-icon" />
                 <span>Partidos</span>
+            </NavLink>
+
+            <NavLink to="/teams" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <FaUsers className="nav-icon" />
+                <span>Equipos</span>
             </NavLink>
 
             <NavLink to="/team-management" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>

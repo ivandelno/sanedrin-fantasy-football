@@ -206,6 +206,19 @@ class DatabaseService {
     }
 
     // ============================================
+    // Teams Summary
+    // ============================================
+
+    async getParticipantsTeamsSummary(seasonId: string): Promise<ParticipantTeamSummary[]> {
+        const { data, error } = await supabase.rpc('get_participants_teams_summary', {
+            p_season_id: seasonId
+        });
+
+        if (error) throw error;
+        return data;
+    }
+
+    // ============================================
     // Seasons
     // ============================================
 

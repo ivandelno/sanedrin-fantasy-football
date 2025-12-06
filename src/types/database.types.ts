@@ -203,3 +203,14 @@ export interface MatchdayPoints {
   points: number;
   matches_count: number;
 }
+
+export interface ParticipantTeamSummary {
+  participant_id: string;
+  username: string;
+  total_season_points: number;
+  team_id: string;
+  team_name: string;
+  league: League;
+  role: Role;
+  team_points: number;
+}
