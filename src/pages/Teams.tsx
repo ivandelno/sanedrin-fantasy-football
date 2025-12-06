@@ -21,21 +21,6 @@ export default function TeamsPage() {
         enabled: !!season
     });
 
-    if (error) {
-        return (
-            <div className="page">
-                <div className="page-header">
-                    <h2>Equipos</h2>
-                </div>
-                <div className="card border-danger">
-                    <h3>Error al cargar equipos</h3>
-                    <p className="text-danger">{(error as Error).message}</p>
-                    <p>Asegúrate de haber ejecutado el script SQL 'get_participants_teams_summary.sql' en Supabase.</p>
-                </div>
-            </div>
-        );
-    }
-
     const groupedParticipants = useMemo(() => {
         if (!participantsSummary) return [];
 
@@ -56,6 +41,21 @@ export default function TeamsPage() {
         // Convert to array and sort by total points descending
         return Array.from(groups.values()).sort((a, b) => b.totalPoints - a.totalPoints);
     }, [participantsSummary]);
+
+    if (error) {
+        return (
+            <div className="page">
+                <div className="page-header">
+                    <h2>Equipos</h2>
+                </div>
+                <div className="card border-danger">
+                    <h3>Error al cargar equipos</h3>
+                    <p className="text-danger">{(error as Error).message}</p>
+                    <p>Asegúrate de haber ejecutado el script SQL 'get_participants_teams_summary.sql' en Supabase.</p>
+                </div>
+            </div>
+        );
+    }
 
     const getRoleStyle = (role: Role) => {
         if (role === Role.SUMAR || role === Role.SUPLENTE_SUMAR) {
