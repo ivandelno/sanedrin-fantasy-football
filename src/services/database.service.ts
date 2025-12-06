@@ -6,7 +6,8 @@ import type {
     ParticipantStanding,
     Season,
     ParticipantSelection,
-    User
+    User,
+    ParticipantTeamSummary
 } from '../types/database.types';
 import { League, MatchStatus } from '../types/database.types';
 
