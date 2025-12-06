@@ -6,7 +6,7 @@ import { FaMedal, FaMinus } from 'react-icons/fa';
 export default function ClassificationPage() {
     const { user } = useAuthStore();
     const { data: season } = useActiveSeason();
-    const { data: standings, isLoading } = useStandings(season?.id || '', !!season);
+    const { data: standings, isLoading, error } = useStandings(season?.id || '', !!season);
 
     if (!season) {
         return (
@@ -18,6 +18,20 @@ export default function ClassificationPage() {
                     <p className="text-secondary">
                         No hay ninguna temporada activa.
                     </p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="page">
+                <div className="page-header">
+                    <h2>Clasificación</h2>
+                </div>
+                <div className="card border-danger">
+                    <h3>Error al cargar clasificación</h3>
+                    <p className="text-danger">{(error as Error).message}</p>
                 </div>
             </div>
         );

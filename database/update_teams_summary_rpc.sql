@@ -1,5 +1,8 @@
 -- Function to get a summary of all participants, their selected teams, and points per team
 -- Revised version: Includes user_id, last_change_date and refined sorting
+-- Fix: Drop function first to allow return type change
+DROP FUNCTION IF EXISTS get_participants_teams_summary(UUID);
+
 CREATE OR REPLACE FUNCTION get_participants_teams_summary(p_season_id UUID)
 RETURNS TABLE (
   participant_id UUID,

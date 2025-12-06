@@ -33,6 +33,9 @@ export default function TeamsPage() {
         const groups = new Map<string, GroupedParticipant>();
 
         participantsSummary.forEach(item => {
+            if (item.last_change_date) {
+                console.log(`DEBUG: Team ${item.team_name} has change date:`, item.last_change_date);
+            }
             if (!groups.has(item.participant_id)) {
                 groups.set(item.participant_id, {
                     participantId: item.participant_id,
@@ -44,6 +47,9 @@ export default function TeamsPage() {
             }
             groups.get(item.participant_id)?.teams.push(item);
         });
+
+        console.log('DEBUG: Current User ID:', user?.id);
+        groups.forEach(g => console.log(`DEBUG: Participant ${g.username} User ID:`, g.userId));
 
         // Convert to array and sort: Logged-in user first, then by total points descending
         return Array.from(groups.values()).sort((a, b) => {
