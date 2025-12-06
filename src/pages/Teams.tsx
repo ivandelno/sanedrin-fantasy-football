@@ -190,7 +190,7 @@ export default function TeamsPage() {
                                                         </span>
                                                         {team.last_change_date && (
                                                             <span className="text-xs text-secondary" title={`Cambio realizado el ${format(new Date(team.last_change_date), "d MMM yyyy HH:mm", { locale: es })}`}>
-                                                                {format(new Date(team.last_change_date), "d MMM", { locale: es })}
+                                                                [{format(new Date(team.last_change_date), "d MMM", { locale: es })}]
                                                             </span>
                                                         )}
                                                     </div>

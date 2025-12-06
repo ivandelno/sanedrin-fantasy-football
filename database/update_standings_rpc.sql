@@ -1,5 +1,5 @@
 -- Update get_participant_standings to count changes dynamically from participant_changes table
--- Fix: Rename "position" to "rank_position" to avoid reserved keyword conflict
+-- Fix: Resolve ambiguous column reference "participant_id" and rename "position" to "rank_position"
 DROP FUNCTION IF EXISTS get_participant_standings(UUID);
 
 CREATE OR REPLACE FUNCTION get_participant_standings(p_season_id UUID)
@@ -8,7 +8,7 @@ RETURNS TABLE (
   user_id UUID,
   username TEXT,
   total_points BIGINT,
-  rank_position BIGINT, -- Renamed from "position"
+  rank_position BIGINT,
   position_change INTEGER,
   matches_played BIGINT,
   changes_used BIGINT
@@ -27,26 +27,26 @@ BEGIN
   ),
   real_changes AS (
     SELECT 
-      participant_id,
+      pc.participant_id as p_id, -- Alias to avoid ambiguity
       COUNT(*) as change_count
-    FROM participant_changes
-    WHERE season_id = p_season_id
-    GROUP BY participant_id
+    FROM participant_changes pc
+    WHERE pc.season_id = p_season_id
+    GROUP BY pc.participant_id
   )
   SELECT 
-    sp.id,
+    sp.id as participant_id,
     sp.user_id,
     u.username,
-    cp.points,
-    RANK() OVER (ORDER BY cp.points DESC, u.username) as rank_position,
-    0::INTEGER as position_change, -- Placeholder for now
-    cp.matches,
+    COALESCE(cp.points, 0) as total_points, -- Explicit alias
+    RANK() OVER (ORDER BY COALESCE(cp.points, 0) DESC, u.username) as rank_position,
+    0::INTEGER as position_change,
+    COALESCE(cp.matches, 0) as matches_played, -- Explicit alias
     COALESCE(rc.change_count, 0) as changes_used
   FROM season_participants sp
   JOIN users u ON u.id = sp.user_id
   LEFT JOIN calculated_points cp ON cp.p_id = sp.id
-  LEFT JOIN real_changes rc ON rc.participant_id = sp.id
+  LEFT JOIN real_changes rc ON rc.p_id = sp.id -- Use alias from CTE
   WHERE sp.season_id = p_season_id
-  ORDER BY cp.points DESC, u.username;
+  ORDER BY COALESCE(cp.points, 0) DESC, u.username;
 END;
 $$ LANGUAGE plpgsql;
