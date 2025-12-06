@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useActiveSeason } from '../hooks/useSeason';
 import { databaseService } from '../services/database.service';
-import { Role } from '../types/database.types';
+import { Role, League } from '../types/database.types';
 import type { ParticipantTeamSummary } from '../types/database.types';
+import { FaTrophy, FaFutbol, FaShieldAlt } from 'react-icons/fa';
 
 interface GroupedParticipant {
     participantId: string;
@@ -66,6 +67,25 @@ export default function TeamsPage() {
         return { color: 'var(--color-text-secondary)' };
     };
 
+    const getPointsStyle = (points: number) => {
+        if (points > 0) return { color: 'var(--color-success-600)', fontWeight: 'bold' };
+        if (points < 0) return { color: 'var(--color-danger-600)', fontWeight: 'bold' };
+        return { color: 'var(--color-text-secondary)' };
+    };
+
+    const renderLeagueIcon = (league: string) => {
+        switch (league) {
+            case League.CHAMPIONS:
+                return <FaTrophy title="Champions League" style={{ color: '#f59e0b', fontSize: '1.2em' }} />;
+            case League.PRIMERA:
+                return <FaFutbol title="Primera División" style={{ color: '#3b82f6', fontSize: '1.2em' }} />;
+            case League.SEGUNDA:
+                return <FaShieldAlt title="Segunda División" style={{ color: '#6b7280', fontSize: '1.2em' }} />;
+            default:
+                return <span className="text-xs text-secondary">{league}</span>;
+        }
+    };
+
     if (!season) {
         return (
             <div className="page">
@@ -124,7 +144,7 @@ export default function TeamsPage() {
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>Liga</th>
+                                        <th style={{ width: '50px', textAlign: 'center' }}>Liga</th>
                                         <th>Equipo</th>
                                         <th style={{ textAlign: 'right' }}>Puntos</th>
                                     </tr>
@@ -132,14 +152,14 @@ export default function TeamsPage() {
                                 <tbody>
                                     {participant.teams.map(team => (
                                         <tr key={team.team_id}>
-                                            <td>
-                                                <span className="text-xs text-secondary">{team.league}</span>
+                                            <td style={{ textAlign: 'center' }}>
+                                                {renderLeagueIcon(team.league)}
                                             </td>
                                             <td style={getRoleStyle(team.role as Role)}>
                                                 {team.team_name}
                                                 {team.role.includes('SUPLENTE') && <span className="text-xs text-secondary ml-2">(Suplente)</span>}
                                             </td>
-                                            <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
+                                            <td style={{ textAlign: 'right', ...getPointsStyle(team.team_points) }}>
                                                 {team.team_points}
                                             </td>
                                         </tr>

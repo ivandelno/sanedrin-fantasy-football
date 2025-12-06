@@ -1,5 +1,5 @@
 -- Function to get a summary of all participants, their selected teams, and points per team
--- Revised version without CTE to avoid potential issues
+-- Revised version: Cast ENUM types to TEXT and order substitutes last
 CREATE OR REPLACE FUNCTION get_participants_teams_summary(p_season_id UUID)
 RETURNS TABLE (
   participant_id UUID,
@@ -24,8 +24,8 @@ BEGIN
     ), 0) as total_season_points,
     t.id as team_id,
     t.name as team_name,
-    t.league,
-    ps.role,
+    t.league::text, -- Cast ENUM to TEXT
+    ps.role::text,  -- Cast ENUM to TEXT
     -- Sum points for this specific team from the breakdown_json
     COALESCE(SUM((pmp.breakdown_json->>'points')::int), 0) as team_points
   FROM season_participants sp
@@ -39,7 +39,10 @@ BEGIN
   WHERE sp.season_id = p_season_id
   GROUP BY sp.id, u.username, t.id, t.name, t.league, ps.role
   ORDER BY u.username, 
-           CASE t.league 
+           -- Put substitutes last (SUPLENTE, SUPLENTE_SUMAR, SUPLENTE_RESTAR)
+           CASE WHEN ps.role::text LIKE 'SUPLENTE%' THEN 2 ELSE 1 END,
+           -- League order
+           CASE t.league::text 
              WHEN 'CHAMPIONS' THEN 1 
              WHEN 'PRIMERA' THEN 2 
              WHEN 'SEGUNDA' THEN 3 
