@@ -1,4 +1,5 @@
 -- Fix calculate_match_points to respect historical changes (participant_changes)
+-- Corrected usage of FOUND variable
 CREATE OR REPLACE FUNCTION calculate_match_points(p_match_id UUID)
 RETURNS VOID AS $$
 DECLARE
@@ -20,7 +21,6 @@ BEGIN
   END IF;
 
   -- Iterate over all participants who have EVER had the home or away team selected
-  -- This covers current selections AND past selections (via changes)
   FOR v_participant_id IN
     SELECT DISTINCT participant_id FROM participant_selections 
     WHERE season_id = v_match.season_id AND team_id IN (v_match.home_team_id, v_match.away_team_id)
@@ -41,7 +41,7 @@ BEGIN
         AND executed_at <= v_match.utc_datetime::timestamptz
       ORDER BY executed_at DESC LIMIT 1;
 
-      IF FOUND(v_change_before) THEN
+      IF FOUND THEN
         -- A change happened before the match. What was the result?
         IF v_change_before.to_team_id = v_team_id THEN
           -- Team was added or moved to this role
@@ -63,7 +63,7 @@ BEGIN
           AND executed_at > v_match.utc_datetime::timestamptz
         ORDER BY executed_at ASC LIMIT 1;
 
-        IF FOUND(v_change_after) THEN
+        IF FOUND THEN
           -- A change happened after. What was the state before it?
           IF v_change_after.from_team_id = v_team_id THEN
             -- Team was moved FROM this role, so it WAS in this role before.

@@ -5,9 +5,13 @@ import { databaseService } from '../services/database.service';
 import { Role, League } from '../types/database.types';
 import type { ParticipantTeamSummary } from '../types/database.types';
 import { FaTrophy, FaFutbol, FaShieldAlt } from 'react-icons/fa';
+import { useAuthStore } from '../stores/auth.store';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface GroupedParticipant {
     participantId: string;
+    userId: string;
     username: string;
     totalPoints: number;
     teams: ParticipantTeamSummary[];
@@ -15,6 +19,7 @@ interface GroupedParticipant {
 
 export default function TeamsPage() {
     const { data: season } = useActiveSeason();
+    const { user } = useAuthStore();
 
     const { data: participantsSummary, isLoading, error } = useQuery({
         queryKey: ['participants-teams-summary', season?.id],
@@ -31,6 +36,7 @@ export default function TeamsPage() {
             if (!groups.has(item.participant_id)) {
                 groups.set(item.participant_id, {
                     participantId: item.participant_id,
+                    userId: item.user_id,
                     username: item.username,
                     totalPoints: item.total_season_points,
                     teams: []
@@ -39,9 +45,13 @@ export default function TeamsPage() {
             groups.get(item.participant_id)?.teams.push(item);
         });
 
-        // Convert to array and sort by total points descending
-        return Array.from(groups.values()).sort((a, b) => b.totalPoints - a.totalPoints);
-    }, [participantsSummary]);
+        // Convert to array and sort: Logged-in user first, then by total points descending
+        return Array.from(groups.values()).sort((a, b) => {
+            if (user && a.userId === user.id) return -1;
+            if (user && b.userId === user.id) return 1;
+            return b.totalPoints - a.totalPoints;
+        });
+    }, [participantsSummary, user]);
 
     if (error) {
         return (
@@ -73,14 +83,20 @@ export default function TeamsPage() {
         return { color: 'var(--color-text-secondary)' };
     };
 
-    const renderLeagueIcon = (league: string) => {
+    const renderLeagueIcon = (league: string, isSuplente: boolean) => {
+        const style = {
+            fontSize: '1.2em',
+            opacity: isSuplente ? 0.5 : 1,
+            filter: isSuplente ? 'grayscale(100%)' : 'none'
+        };
+
         switch (league) {
             case League.CHAMPIONS:
-                return <FaTrophy title="Champions League" style={{ color: '#f59e0b', fontSize: '1.2em' }} />;
+                return <FaTrophy title={isSuplente ? "Champions League (Suplente)" : "Champions League"} style={{ ...style, color: '#f59e0b' }} />;
             case League.PRIMERA:
-                return <FaFutbol title="Primera División" style={{ color: '#3b82f6', fontSize: '1.2em' }} />;
+                return <FaFutbol title={isSuplente ? "Primera División (Suplente)" : "Primera División"} style={{ ...style, color: '#3b82f6' }} />;
             case League.SEGUNDA:
-                return <FaShieldAlt title="Segunda División" style={{ color: '#6b7280', fontSize: '1.2em' }} />;
+                return <FaShieldAlt title={isSuplente ? "Segunda División (Suplente)" : "Segunda División"} style={{ ...style, color: '#6b7280' }} />;
             default:
                 return <span className="text-xs text-secondary">{league}</span>;
         }
@@ -130,7 +146,10 @@ export default function TeamsPage() {
                             borderBottom: '1px solid var(--color-border)',
                             paddingBottom: '0.5rem'
                         }}>
-                            <h3 style={{ margin: 0 }}>{participant.username}</h3>
+                            <h3 style={{ margin: 0 }}>
+                                {participant.username}
+                                {user && participant.userId === user.id && <span className="text-xs text-primary ml-2">(Tú)</span>}
+                            </h3>
                             <div className="participant-points" style={{
                                 fontSize: '1.25rem',
                                 fontWeight: 'bold',
@@ -150,20 +169,32 @@ export default function TeamsPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {participant.teams.map(team => (
-                                        <tr key={team.team_id}>
-                                            <td style={{ textAlign: 'center' }}>
-                                                {renderLeagueIcon(team.league)}
-                                            </td>
-                                            <td style={getRoleStyle(team.role as Role)}>
-                                                {team.team_name}
-                                                {team.role.includes('SUPLENTE') && <span className="text-xs text-secondary ml-2">(Suplente)</span>}
-                                            </td>
-                                            <td style={{ textAlign: 'right', ...getPointsStyle(team.team_points) }}>
-                                                {team.team_points}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {participant.teams.map(team => {
+                                        const isSuplente = team.role.includes('SUPLENTE');
+                                        return (
+                                            <tr key={team.team_id}>
+                                                <td style={{ textAlign: 'center' }}>
+                                                    {renderLeagueIcon(team.league, isSuplente)}
+                                                </td>
+                                                <td style={getRoleStyle(team.role as Role)}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <span>
+                                                            {team.team_name}
+                                                            {isSuplente && <span className="text-xs text-secondary ml-2">(Suplente)</span>}
+                                                        </span>
+                                                        {team.last_change_date && (
+                                                            <span className="text-xs text-secondary" title={`Cambio realizado el ${format(new Date(team.last_change_date), "d MMM yyyy HH:mm", { locale: es })}`}>
+                                                                {format(new Date(team.last_change_date), "d MMM", { locale: es })}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td style={{ textAlign: 'right', ...getPointsStyle(team.team_points) }}>
+                                                    {team.team_points}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

@@ -58,7 +58,7 @@ export default function ClassificationPage() {
                                     <th style={{ width: '60px' }}>Pos</th>
                                     <th>Usuario</th>
                                     <th style={{ width: '100px', textAlign: 'right' }}>Puntos</th>
-                                    <th style={{ width: '100px', textAlign: 'center' }}>Cambio</th>
+                                    <th style={{ width: '100px', textAlign: 'center' }}>Cambios</th>
                                     <th style={{ width: '100px', textAlign: 'right' }}>Partidos</th>
                                 </tr>
                             </thead>
@@ -84,7 +84,7 @@ export default function ClassificationPage() {
                                             <strong>{standing.total_points}</strong>
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
-                                            {getPositionChange(standing.position_change)}
+                                            {standing.changes_used}
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
                                             {standing.matches_played}
