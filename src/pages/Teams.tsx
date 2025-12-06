@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useActiveSeason } from '../hooks/useSeason';
 import { databaseService } from '../services/database.service';
-import { ParticipantTeamSummary, Role } from '../types/database.types';
+import { Role } from '../types/database.types';
+import type { ParticipantTeamSummary } from '../types/database.types';
 
 interface GroupedParticipant {
     participantId: string;
@@ -42,9 +43,9 @@ export default function TeamsPage() {
     }, [participantsSummary]);
 
     const getRoleStyle = (role: Role) => {
-        if (role === Role.SUMAR || role === 'SUPLENTE_SUMAR') {
+        if (role === Role.SUMAR || role === Role.SUPLENTE_SUMAR) {
             return { color: 'var(--color-success-600)', fontWeight: 'bold' };
-        } else if (role === Role.RESTAR || role === 'SUPLENTE_RESTAR') {
+        } else if (role === Role.RESTAR || role === Role.SUPLENTE_RESTAR) {
             return { color: 'var(--color-danger-600)', fontWeight: 'bold' };
         }
         return { color: 'var(--color-text-secondary)' };

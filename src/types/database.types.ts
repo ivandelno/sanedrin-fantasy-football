@@ -13,6 +13,8 @@ export enum Role {
   SUMAR = 'SUMAR',
   RESTAR = 'RESTAR',
   SUPLENTE = 'SUPLENTE',
+  SUPLENTE_SUMAR = 'SUPLENTE_SUMAR',
+  SUPLENTE_RESTAR = 'SUPLENTE_RESTAR',
 }
 
 export enum MatchStatus {
