@@ -84,8 +84,8 @@ export default function ClassificationPage() {
                                     >
                                         <td>
                                             <div className="flex items-center gap-2">
-                                                {getMedalIcon(standing.position)}
-                                                <span>{standing.position}º</span>
+                                                {getMedalIcon(standing.rank_position)}
+                                                <span>{standing.rank_position}º</span>
                                             </div>
                                         </td>
                                         <td>

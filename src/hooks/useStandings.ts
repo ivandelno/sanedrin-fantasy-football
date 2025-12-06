@@ -15,7 +15,7 @@ export function useUserPosition(seasonId: string, userId: string) {
     const { data: standings, ...rest } = useStandings(seasonId);
 
     const userStanding = standings?.find(s => s.user_id === userId);
-    const position = userStanding?.position || 0;
+    const position = userStanding?.rank_position || 0;
     const points = userStanding?.total_points || 0;
 
     // Calculate position change (would need historical data)

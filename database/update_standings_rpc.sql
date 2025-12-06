@@ -1,5 +1,5 @@
 -- Update get_participant_standings to count changes dynamically from participant_changes table
--- Fix: Drop function first to allow return type change
+-- Fix: Rename "position" to "rank_position" to avoid reserved keyword conflict
 DROP FUNCTION IF EXISTS get_participant_standings(UUID);
 
 CREATE OR REPLACE FUNCTION get_participant_standings(p_season_id UUID)
@@ -8,7 +8,7 @@ RETURNS TABLE (
   user_id UUID,
   username TEXT,
   total_points BIGINT,
-  "position" BIGINT,
+  rank_position BIGINT, -- Renamed from "position"
   position_change INTEGER,
   matches_played BIGINT,
   changes_used BIGINT
@@ -38,7 +38,7 @@ BEGIN
     sp.user_id,
     u.username,
     cp.points,
-    RANK() OVER (ORDER BY cp.points DESC, u.username) as "position",
+    RANK() OVER (ORDER BY cp.points DESC, u.username) as rank_position,
     0::INTEGER as position_change, -- Placeholder for now
     cp.matches,
     COALESCE(rc.change_count, 0) as changes_used
