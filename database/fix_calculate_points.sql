@@ -1,5 +1,5 @@
 -- Fix calculate_match_points to respect historical changes (participant_changes)
--- Corrected usage of FOUND variable and timezone handling
+-- Corrected usage of FOUND variable and timezone handling (removed double timezone concatenation)
 CREATE OR REPLACE FUNCTION calculate_match_points(p_match_id UUID)
 RETURNS VOID AS $$
 DECLARE
@@ -35,11 +35,11 @@ BEGIN
       v_role := NULL;
 
       -- 1. Check for the latest change BEFORE or AT the match date
-      -- Force UTC interpretation of match datetime
+      -- v_match.utc_datetime is already TIMESTAMPTZ or a valid string with timezone
       SELECT * INTO v_change_before FROM participant_changes 
       WHERE participant_id = v_participant_id 
         AND (from_team_id = v_team_id OR to_team_id = v_team_id) 
-        AND executed_at <= (v_match.utc_datetime || '+00')::timestamptz
+        AND executed_at <= v_match.utc_datetime::timestamptz
       ORDER BY executed_at DESC LIMIT 1;
 
       IF FOUND THEN
@@ -61,7 +61,7 @@ BEGIN
         SELECT * INTO v_change_after FROM participant_changes 
         WHERE participant_id = v_participant_id 
           AND (from_team_id = v_team_id OR to_team_id = v_team_id) 
-          AND executed_at > (v_match.utc_datetime || '+00')::timestamptz
+          AND executed_at > v_match.utc_datetime::timestamptz
         ORDER BY executed_at ASC LIMIT 1;
 
         IF FOUND THEN
