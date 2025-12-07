@@ -5,7 +5,7 @@ import { databaseService } from '../services/database.service';
 import { authService } from '../services/auth.service';
 import { useActiveSeason, useAllSeasons } from '../hooks/useSeason';
 import { Role, League, type ParticipantTeamSummary } from '../types/database.types';
-import { FaFutbol, FaShieldAlt, FaTrophy, FaExchangeAlt, FaHistory, FaSave, FaTimes } from 'react-icons/fa';
+import { FaFutbol, FaShieldAlt, FaTrophy, FaExchangeAlt, FaSave, FaTimes } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -38,18 +38,6 @@ export default function TeamManagementPage() {
         enabled: !!selectedSeasonId
     });
 
-    const { data: changesHistory, isLoading: historyLoading } = useQuery({
-        queryKey: ['participant-changes', selectedSeasonId, user?.id],
-        queryFn: () => (selectedSeasonId && user?.id) ? databaseService.getParticipantChanges(selectedSeasonId, user.id) : Promise.resolve([]),
-        enabled: !!selectedSeasonId && !!user?.id
-    });
-
-    // Subtitution State
-    const [isChangeMode, setIsChangeMode] = useState(false);
-    const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
-    const [selectedStarterId, setSelectedStarterId] = useState<string | null>(null);
-    const [errorMsg, setErrorMsg] = useState('');
-
     // Processed Data
     const myTeams = useMemo(() => {
         if (!teamsSummary || !user) return [];
@@ -61,11 +49,23 @@ export default function TeamManagementPage() {
         return standings.find(s => s.user_id === user.id);
     }, [standings, user]);
 
+    const { data: changesHistory, isLoading: historyLoading } = useQuery({
+        queryKey: ['participant-changes', selectedSeasonId, myStats?.participant_id],
+        queryFn: () => (selectedSeasonId && myStats?.participant_id) ? databaseService.getParticipantChanges(selectedSeasonId, myStats.participant_id) : Promise.resolve([]),
+        enabled: !!selectedSeasonId && !!myStats?.participant_id
+    });
+
+    // Subtitution State
+    const [isChangeMode, setIsChangeMode] = useState(false);
+    const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
+    const [selectedStarterId, setSelectedStarterId] = useState<string | null>(null);
+    const [errorMsg, setErrorMsg] = useState('');
+
     // Mutation
     const changeMutation = useMutation({
         mutationFn: async () => {
-            if (!user || !selectedSeasonId || !selectedSubId || !selectedStarterId) throw new Error("Datos incompletos");
-            await databaseService.performTeamChange(selectedSeasonId, user.id, selectedStarterId, selectedSubId);
+            if (!user || !myStats?.participant_id || !selectedSeasonId || !selectedSubId || !selectedStarterId) throw new Error("Datos incompletos");
+            await databaseService.performTeamChange(selectedSeasonId, myStats.participant_id, selectedStarterId, selectedSubId);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['participants-teams-summary'] });
@@ -103,15 +103,37 @@ export default function TeamManagementPage() {
                 setSelectedSubId(null);
                 return;
             }
+
+            // Allow switching to another substitute
+            if (isSuplente) {
+                setSelectedSubId(team.team_id);
+                return;
+            }
+
             // Check eligibility
             const subTeam = myTeams.find(t => t.team_id === selectedSubId);
             if (subTeam && subTeam.league === team.league && !isSuplente) {
                 setSelectedStarterId(team.team_id);
             }
         } else {
-            // Reset if clicking again?
-            if (team.team_id === selectedSubId) setSelectedSubId(null);
-            if (team.team_id === selectedStarterId) setSelectedStarterId(null);
+            // Step 3: Full selection made
+            // Allow changing selection by clicking again
+            if (team.team_id === selectedSubId) {
+                setSelectedSubId(null);
+                setSelectedStarterId(null);
+                return;
+            }
+            if (team.team_id === selectedStarterId) {
+                setSelectedStarterId(null);
+                return;
+            }
+
+            // Allow switching sub
+            if (isSuplente) {
+                setSelectedSubId(team.team_id);
+                setSelectedStarterId(null);
+                return;
+            }
         }
     };
 
@@ -119,7 +141,7 @@ export default function TeamManagementPage() {
     const getRenderTeams = () => {
         let teams = [...myTeams];
 
-        // Sorting logic (duplicating Teams.tsx logic for consistency)
+        // Sorting logic
         teams.sort((a, b) => {
             const getTeamWeight = (team: ParticipantTeamSummary) => {
                 const isSuplente = team.role.includes('SUPLENTE');
@@ -196,8 +218,7 @@ export default function TeamManagementPage() {
     };
 
     const changesUsed = myStats?.changes_used || 0;
-    const maxChanges = 3; // Hardcoded or fetch from config if available (current types don't have it easily accessible in standings)
-    // Note: Database triggers/RPC enforce limit, UI can just show count.
+    const maxChanges = 3;
 
     return (
         <div className="page">
@@ -238,6 +259,7 @@ export default function TeamManagementPage() {
                                     className="btn btn-success flex items-center gap-2"
                                     onClick={() => changeMutation.mutate()}
                                     disabled={changeMutation.isPending}
+                                    style={{ color: 'white' }}
                                 >
                                     <FaSave /> Guardar
                                 </button>
@@ -245,6 +267,7 @@ export default function TeamManagementPage() {
                             <button
                                 className="btn btn-outline-danger flex items-center gap-2"
                                 onClick={resetChangeMode}
+                                style={{ backgroundColor: '#dc3545', color: 'white' }}
                             >
                                 <FaTimes /> Cancelar
                             </button>
@@ -315,7 +338,7 @@ export default function TeamManagementPage() {
                                         style={{
                                             cursor: isChangeMode && !isDimmed ? 'pointer' : 'default',
                                             opacity: isDimmed ? 0.4 : 1,
-                                            backgroundColor: isHighlight ? 'var(--color-primary-50)' : 'transparent',
+                                            backgroundColor: isHighlight ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
                                             border: isSelectedSub || isSelectedStarter ? '2px solid var(--color-primary-500)' : undefined
                                         }}
                                     >
@@ -324,7 +347,14 @@ export default function TeamManagementPage() {
                                         </td>
                                         <td>
                                             <div className="flex items-center gap-2">
-                                                <span style={{ fontWeight: isSuplente ? 'normal' : 'bold' }}>
+                                                <span style={{
+                                                    fontWeight: isSuplente ? 'normal' : 'bold',
+                                                    color: isHighlight ? 'var(--color-gray-900)' : 'inherit' // Ensure readable text on light bg (if using light mode highlight) 
+                                                    // Actually if using rgba(59, 130, 246, 0.1), that works on both. 
+                                                    // But let's trust inheritance unless it's strictly light mode specific.
+                                                    // 'var(--color-gray-900)' is black. If dark mode, text should be white.
+                                                    // Let's rely on base text color + translucent background.
+                                                }}>
                                                     {team.team_name}
                                                 </span>
                                                 {isSuplente && <span className="text-secondary text-sm">(Suplente)</span>}
