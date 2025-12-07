@@ -1,6 +1,5 @@
--- Fix calculate_match_points to respect historical changes (participant_changes)
--- Corrected usage of FOUND variable and timezone handling
--- Added extra safety check for season_id in selections lookup
+-- Fix calculate_match_points to handle "Derby" matches (User owns both teams)
+-- Instead of overwriting, it now accumulates points and merges breakdown details
 CREATE OR REPLACE FUNCTION calculate_match_points(p_match_id UUID)
 RETURNS VOID AS $$
 DECLARE
@@ -12,6 +11,11 @@ DECLARE
   v_result TEXT;
   v_change_before RECORD;
   v_change_after RECORD;
+  
+  -- Variables for accumulation
+  v_total_points INTEGER;
+  v_breakdown_items JSONB[];
+  v_breakdown_json JSONB;
 BEGIN
   -- Get match details
   SELECT * INTO v_match FROM matches WHERE id = p_match_id AND status = 'FINISHED';
@@ -29,6 +33,10 @@ BEGIN
     WHERE season_id = v_match.season_id AND (from_team_id IN (v_match.home_team_id, v_match.away_team_id) OR to_team_id IN (v_match.home_team_id, v_match.away_team_id))
   LOOP
     
+    -- Initialize accumulation variables for this participant/match
+    v_total_points := 0;
+    v_breakdown_items := ARRAY[]::JSONB[];
+
     -- Check for both Home and Away teams for this participant
     FOREACH v_team_id IN ARRAY ARRAY[v_match.home_team_id, v_match.away_team_id]
     LOOP
@@ -44,14 +52,12 @@ BEGIN
       IF FOUND THEN
         -- A change happened before the match. What was the result?
         IF v_change_before.to_team_id = v_team_id THEN
-          -- Team was added or moved to this role
           v_role := v_change_before.to_role::text;
         ELSIF v_change_before.from_team_id = v_team_id THEN
-          -- Team was removed or moved from this role
           IF v_change_before.change_type = 'SUPLENTE' THEN
-            v_role := 'SUPLENTE'; -- Swapped to bench
+            v_role := 'SUPLENTE';
           ELSE
-            v_role := NULL; -- Removed (EXTRAORDINARY)
+            v_role := NULL;
           END IF;
         END IF;
 
@@ -64,31 +70,26 @@ BEGIN
         ORDER BY executed_at ASC LIMIT 1;
 
         IF FOUND THEN
-          -- A change happened after. What was the state before it?
           IF v_change_after.from_team_id = v_team_id THEN
-            -- Team was moved FROM this role, so it WAS in this role before.
             v_role := v_change_after.from_role::text;
           ELSIF v_change_after.to_team_id = v_team_id THEN
-            -- Team was moved TO this role, so it was NOT in this role before.
             IF v_change_after.change_type = 'SUPLENTE' THEN
-              v_role := 'SUPLENTE'; -- Was on bench before swap
+              v_role := 'SUPLENTE';
             ELSE
-              v_role := NULL; -- Was not selected before addition
+              v_role := NULL;
             END IF;
           END IF;
 
         ELSE
-          -- 3. No changes ever for this team. Check current selections.
+          -- 3. No changes ever. Check current selections.
           SELECT role::text INTO v_role FROM participant_selections 
           WHERE participant_id = v_participant_id 
             AND team_id = v_team_id
-            AND season_id = v_match.season_id; -- Added safety check
-          
-          -- If not found in current selections, v_role remains NULL (correct)
+            AND season_id = v_match.season_id;
         END IF;
       END IF;
 
-      -- If we identified a valid role, calculate points
+      -- If we identified a valid role, calculate points AND ACCUMULATE
       IF v_role IS NOT NULL THEN
         -- Determine match result
         IF v_team_id = v_match.home_team_id THEN
@@ -116,31 +117,58 @@ BEGIN
             WHEN 'LOSS' THEN v_points := 0;
           END CASE;
         ELSE
-           -- SUPLENTE or others get 0 points
            v_points := 0;
         END IF;
 
-        -- Insert or update points
-        INSERT INTO participant_match_points (season_id, participant_id, match_id, points, breakdown_json)
-        VALUES (
-          v_match.season_id,
-          v_participant_id,
-          p_match_id,
-          v_points,
-          jsonb_build_object(
+        -- Accumulate points
+        v_total_points := v_total_points + v_points;
+        
+        -- Add to breakdown list
+        v_breakdown_items := array_append(v_breakdown_items, jsonb_build_object(
             'team_id', v_team_id,
             'role', v_role,
             'match_result', v_result,
             'points', v_points
-          )
-        )
-        ON CONFLICT (season_id, participant_id, match_id) 
-        DO UPDATE SET 
-          points = EXCLUDED.points,
-          breakdown_json = EXCLUDED.breakdown_json;
+        ));
       END IF;
       
     END LOOP; -- End team loop
+
+    -- After checking both teams, if we have any data, insert/update ONCE
+    IF array_length(v_breakdown_items, 1) > 0 THEN
+      
+      -- If there's only one item, store it directly as object (for backward compatibility if needed)
+      -- OR store as array. Let's store as object if single, or special structure if multiple?
+      -- The current schema expects 'team_id' at top level for some queries.
+      -- To support multiple teams, we might need to change how we query breakdown_json.
+      -- BUT for now, let's store the FIRST team's details at top level + a 'details' array.
+      
+      v_breakdown_json := v_breakdown_items[1];
+      
+      IF array_length(v_breakdown_items, 1) > 1 THEN
+         -- Merge points? No, v_total_points has the sum.
+         -- We just need to make sure we don't lose the info of the second team.
+         -- Let's add a 'secondary_teams' field to the json.
+         v_breakdown_json := v_breakdown_json || jsonb_build_object('secondary_teams', v_breakdown_items[2:array_length(v_breakdown_items, 1)]);
+      END IF;
+
+      -- Update points in the main object to reflect the TOTAL
+      v_breakdown_json := v_breakdown_json || jsonb_build_object('points', v_total_points);
+
+      INSERT INTO participant_match_points (season_id, participant_id, match_id, points, breakdown_json)
+      VALUES (
+        v_match.season_id,
+        v_participant_id,
+        p_match_id,
+        v_total_points,
+        v_breakdown_json
+      )
+      ON CONFLICT (season_id, participant_id, match_id) 
+      DO UPDATE SET 
+        points = EXCLUDED.points,
+        breakdown_json = EXCLUDED.breakdown_json;
+    END IF;
+
   END LOOP; -- End participant loop
 END;
 $$ LANGUAGE plpgsql;
