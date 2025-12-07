@@ -1,6 +1,5 @@
 -- Function to get a summary of all participants, their selected teams, and points per team
--- Revised version: Includes user_id, last_change_date, refined sorting, AND DYNAMIC ROLE CALCULATION
--- Fix: Drop function first to allow return type change
+-- Revised version: Uses breakdown array for accurate team point attribution
 DROP FUNCTION IF EXISTS get_participants_teams_summary(UUID);
 
 CREATE OR REPLACE FUNCTION get_participants_teams_summary(p_season_id UUID)
@@ -22,7 +21,7 @@ BEGIN
     sp.id as participant_id,
     sp.user_id,
     u.username,
-    -- Calculate total points for the participant using a subquery
+    -- Calculate total points for the participant using a subquery (sum of match totals)
     COALESCE((
       SELECT SUM(pmp_total.points)
       FROM participant_match_points pmp_total
@@ -31,7 +30,7 @@ BEGIN
     t.id as team_id,
     t.name as team_name,
     t.league::text,
-    -- DYNAMIC ROLE CALCULATION: Check for latest change
+    -- DYNAMIC ROLE CALCULATION
     COALESCE(
       (SELECT 
          CASE 
@@ -47,17 +46,20 @@ BEGIN
       ), 
       ps.role::text
     ) as role,
-    -- Sum points for this specific team
-    COALESCE(SUM((pmp.breakdown_json->>'points')::int), 0) as team_points,
+    -- Sum points for this specific team using the breakdown array
+    COALESCE((
+      SELECT SUM((item->>'points')::int)
+      FROM participant_match_points pmp,
+           jsonb_array_elements(pmp.breakdown_json->'breakdown') item
+      WHERE pmp.participant_id = sp.id 
+        AND pmp.season_id = p_season_id
+        AND (item->>'team_id')::uuid = t.id
+    ), 0) as team_points,
     last_change.executed_at as last_change_date
   FROM season_participants sp
   JOIN users u ON u.id = sp.user_id
   JOIN participant_selections ps ON ps.participant_id = sp.id
   JOIN teams t ON t.id = ps.team_id
-  -- Join match points
-  LEFT JOIN participant_match_points pmp ON pmp.participant_id = sp.id 
-       AND pmp.season_id = p_season_id
-       AND (pmp.breakdown_json->>'team_id')::uuid = ps.team_id
   -- Get latest change date for this team (for display)
   LEFT JOIN LATERAL (
     SELECT executed_at 

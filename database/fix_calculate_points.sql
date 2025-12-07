@@ -1,5 +1,5 @@
--- Fix calculate_match_points to handle "Derby" matches (User owns both teams)
--- Instead of overwriting, it now accumulates points and merges breakdown details
+-- Fix calculate_match_points to save a structured breakdown for all teams
+-- This ensures we can attribute points correctly to each team in the view
 CREATE OR REPLACE FUNCTION calculate_match_points(p_match_id UUID)
 RETURNS VOID AS $$
 DECLARE
@@ -50,7 +50,6 @@ BEGIN
       ORDER BY executed_at DESC LIMIT 1;
 
       IF FOUND THEN
-        -- A change happened before the match. What was the result?
         IF v_change_before.to_team_id = v_team_id THEN
           v_role := v_change_before.to_role::text;
         ELSIF v_change_before.from_team_id = v_team_id THEN
@@ -60,9 +59,8 @@ BEGIN
             v_role := NULL;
           END IF;
         END IF;
-
       ELSE
-        -- 2. No change before match. Check for the first change AFTER the match.
+        -- 2. Check for changes AFTER
         SELECT * INTO v_change_after FROM participant_changes 
         WHERE participant_id = v_participant_id 
           AND (from_team_id = v_team_id OR to_team_id = v_team_id) 
@@ -79,9 +77,8 @@ BEGIN
               v_role := NULL;
             END IF;
           END IF;
-
         ELSE
-          -- 3. No changes ever. Check current selections.
+          -- 3. Check current selections
           SELECT role::text INTO v_role FROM participant_selections 
           WHERE participant_id = v_participant_id 
             AND team_id = v_team_id
@@ -89,7 +86,7 @@ BEGIN
         END IF;
       END IF;
 
-      -- If we identified a valid role, calculate points AND ACCUMULATE
+      -- Calculate points if role found
       IF v_role IS NOT NULL THEN
         -- Determine match result
         IF v_team_id = v_match.home_team_id THEN
@@ -134,26 +131,17 @@ BEGIN
       
     END LOOP; -- End team loop
 
-    -- After checking both teams, if we have any data, insert/update ONCE
+    -- Insert/Update if data exists
     IF array_length(v_breakdown_items, 1) > 0 THEN
       
-      -- If there's only one item, store it directly as object (for backward compatibility if needed)
-      -- OR store as array. Let's store as object if single, or special structure if multiple?
-      -- The current schema expects 'team_id' at top level for some queries.
-      -- To support multiple teams, we might need to change how we query breakdown_json.
-      -- BUT for now, let's store the FIRST team's details at top level + a 'details' array.
-      
-      v_breakdown_json := v_breakdown_items[1];
-      
-      IF array_length(v_breakdown_items, 1) > 1 THEN
-         -- Merge points? No, v_total_points has the sum.
-         -- We just need to make sure we don't lose the info of the second team.
-         -- Let's add a 'secondary_teams' field to the json.
-         v_breakdown_json := v_breakdown_json || jsonb_build_object('secondary_teams', v_breakdown_items[2:array_length(v_breakdown_items, 1)]);
-      END IF;
-
-      -- Update points in the main object to reflect the TOTAL
-      v_breakdown_json := v_breakdown_json || jsonb_build_object('points', v_total_points);
+      -- Construct JSON with a standardized 'breakdown' array
+      -- We also keep 'team_id' at root for the first team just in case legacy queries need it,
+      -- but the new view will use 'breakdown'.
+      v_breakdown_json := jsonb_build_object(
+        'team_id', v_breakdown_items[1]->>'team_id', -- Primary team (first one processed)
+        'points', v_total_points, -- Total match points for participant
+        'breakdown', to_jsonb(v_breakdown_items) -- Full details
+      );
 
       INSERT INTO participant_match_points (season_id, participant_id, match_id, points, breakdown_json)
       VALUES (
