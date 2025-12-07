@@ -45,12 +45,46 @@ export default function TeamsPage() {
             groups.get(item.participant_id)?.teams.push(item);
         });
 
-        // Convert to array and sort: Logged-in user first, then by total points descending
-        return Array.from(groups.values()).sort((a, b) => {
-            if (user && a.userId === user.id) return -1;
-            if (user && b.userId === user.id) return 1;
-            return b.totalPoints - a.totalPoints;
-        });
+        return Array.from(groups.values())
+            .map(participant => {
+                // Sort teams for each participant
+                participant.teams.sort((a, b) => {
+                    const getTeamWeight = (team: ParticipantTeamSummary) => {
+                        const isSuplente = team.role.includes('SUPLENTE');
+
+                        // Substitutes go to the bottom
+                        if (isSuplente) {
+                            if (team.league === League.PRIMERA) return 60;
+                            if (team.league === League.SEGUNDA) return 70;
+                            if (team.league === League.CHAMPIONS) return 75; // Just in case
+                            return 80;
+                        }
+
+                        // Active teams logic
+                        if (team.league === League.CHAMPIONS) return 10;
+
+                        if (team.league === League.PRIMERA) {
+                            if (team.role === Role.SUMAR) return 20;
+                            if (team.role === Role.RESTAR) return 30;
+                        }
+
+                        if (team.league === League.SEGUNDA) {
+                            if (team.role === Role.SUMAR) return 40;
+                            if (team.role === Role.RESTAR) return 50;
+                        }
+
+                        return 90; // Fallback
+                    };
+
+                    return getTeamWeight(a) - getTeamWeight(b);
+                });
+                return participant;
+            })
+            .sort((a, b) => {
+                if (user && a.userId === user.id) return -1;
+                if (user && b.userId === user.id) return 1;
+                return b.totalPoints - a.totalPoints;
+            });
     }, [participantsSummary, user]);
 
     if (error) {
