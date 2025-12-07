@@ -1,5 +1,6 @@
 -- Fix calculate_match_points to respect historical changes (participant_changes)
--- Corrected usage of FOUND variable and timezone handling (removed double timezone concatenation)
+-- Corrected usage of FOUND variable and timezone handling
+-- Added extra safety check for season_id in selections lookup
 CREATE OR REPLACE FUNCTION calculate_match_points(p_match_id UUID)
 RETURNS VOID AS $$
 DECLARE
@@ -11,7 +12,6 @@ DECLARE
   v_result TEXT;
   v_change_before RECORD;
   v_change_after RECORD;
-  v_current_selection RECORD;
 BEGIN
   -- Get match details
   SELECT * INTO v_match FROM matches WHERE id = p_match_id AND status = 'FINISHED';
@@ -35,7 +35,6 @@ BEGIN
       v_role := NULL;
 
       -- 1. Check for the latest change BEFORE or AT the match date
-      -- v_match.utc_datetime is already TIMESTAMPTZ or a valid string with timezone
       SELECT * INTO v_change_before FROM participant_changes 
       WHERE participant_id = v_participant_id 
         AND (from_team_id = v_team_id OR to_team_id = v_team_id) 
@@ -81,7 +80,9 @@ BEGIN
         ELSE
           -- 3. No changes ever for this team. Check current selections.
           SELECT role::text INTO v_role FROM participant_selections 
-          WHERE participant_id = v_participant_id AND team_id = v_team_id;
+          WHERE participant_id = v_participant_id 
+            AND team_id = v_team_id
+            AND season_id = v_match.season_id; -- Added safety check
           
           -- If not found in current selections, v_role remains NULL (correct)
         END IF;
