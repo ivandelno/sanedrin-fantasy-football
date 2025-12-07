@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { StandingsHistoryEntry } from '../types/database.types';
+import type { StandingsHistoryEntry } from '../types/database.types';
 
 interface Props {
     data: StandingsHistoryEntry[];
