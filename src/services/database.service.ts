@@ -175,6 +175,15 @@ class DatabaseService {
         return data;
     }
 
+    async getStandingsHistory(seasonId: string): Promise<StandingsHistoryEntry[]> {
+        const { data, error } = await supabase.rpc('get_standings_history', {
+            p_season_id: seasonId
+        });
+
+        if (error) throw error;
+        return data;
+    }
+
     // ============================================
     // Participant Selections
     // ============================================

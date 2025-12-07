@@ -1,12 +1,15 @@
 import { useActiveSeason } from '../hooks/useSeason';
 import { useStandings } from '../hooks/useStandings';
+import { useStandingsHistory } from '../hooks/useStandingsHistory';
 import { useAuthStore } from '../stores/auth.store';
 import { FaMedal, FaMinus } from 'react-icons/fa';
+import StandingsChart from '../components/StandingsChart';
 
 export default function ClassificationPage() {
     const { user } = useAuthStore();
     const { data: season } = useActiveSeason();
     const { data: standings, isLoading, error } = useStandings(season?.id || '', !!season);
+    const { data: history, isLoading: historyLoading } = useStandingsHistory(season?.id || '', !!season);
 
     if (!season) {
         return (
@@ -113,20 +116,16 @@ export default function ClassificationPage() {
 
             <div className="card mt-6">
                 <h3>Evolución de Puntos</h3>
-                <p className="text-secondary">
-                    La gráfica de evolución por jornadas estará disponible próximamente.
+                <p className="text-secondary mb-4">
+                    Evolución acumulada jornada a jornada.
                 </p>
-                <div style={{
-                    height: '200px',
-                    background: 'var(--color-neutral-50)',
-                    borderRadius: 'var(--radius-lg)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: 'var(--spacing-4)'
-                }}>
-                    <p className="text-secondary">Gráfica de evolución (próximamente)</p>
-                </div>
+                {historyLoading ? (
+                    <div className="h-[300px] flex items-center justify-center text-secondary">
+                        Cargando gráfica...
+                    </div>
+                ) : (
+                    <StandingsChart data={history || []} />
+                )}
             </div>
         </div>
     );

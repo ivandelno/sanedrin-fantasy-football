@@ -219,3 +219,11 @@ export interface ParticipantTeamSummary {
   team_points: number;
   last_change_date?: string;
 }
+
+export interface StandingsHistoryEntry {
+  participant_id: string;
+  username: string;
+  matchday: number;
+  matchday_points: number;
+  total_points: number;
+}
