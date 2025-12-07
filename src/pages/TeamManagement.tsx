@@ -256,7 +256,7 @@ export default function TeamManagementPage() {
                         <div className="flex gap-2">
                             {selectedSubId && selectedStarterId && (
                                 <button
-                                    className="btn btn-success flex items-center gap-2"
+                                    className="btn btn-primary flex items-center gap-2"
                                     onClick={() => changeMutation.mutate()}
                                     disabled={changeMutation.isPending}
                                     style={{ color: 'white' }}
@@ -404,9 +404,9 @@ export default function TeamManagementPage() {
                             <tbody>
                                 {changesHistory.map((change: any) => (
                                     <tr key={change.id}>
-                                        <td>{format(new Date(change.executed_at), "d MMM HH:mm", { locale: es })}</td>
-                                        <td className="text-danger">{change.from_team?.name || '???'}</td>
-                                        <td className="text-success">{change.to_team?.name || '???'}</td>
+                                        <td>{format(new Date(change.executed_at), "dd/MM/yy", { locale: es })}</td>
+                                        <td>{change.from_team?.name || '???'}</td>
+                                        <td>{change.to_team?.name || '???'}</td>
                                     </tr>
                                 ))}
                             </tbody>
