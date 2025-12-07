@@ -267,6 +267,43 @@ class DatabaseService {
         return data;
     }
 
+    async getAllSeasons(): Promise<Season[]> {
+        const { data, error } = await supabase
+            .from('seasons')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data;
+    }
+
+    async performTeamChange(seasonId: string, participantId: string, teamOutId: string, teamInId: string): Promise<void> {
+        const { error } = await supabase.rpc('perform_team_change', {
+            p_season_id: seasonId,
+            p_participant_id: participantId,
+            p_team_out_id: teamOutId,
+            p_team_in_id: teamInId
+        });
+
+        if (error) throw error;
+    }
+
+    async getParticipantChanges(seasonId: string, participantId: string): Promise<any[]> {
+        const { data, error } = await supabase
+            .from('participant_changes')
+            .select(`
+                *,
+                from_team:teams!participant_changes_from_team_id_fkey(name),
+                to_team:teams!participant_changes_to_team_id_fkey(name)
+            `)
+            .eq('season_id', seasonId)
+            .eq('participant_id', participantId)
+            .order('executed_at', { ascending: false });
+
+        if (error) throw error;
+        return data;
+    }
+
     // ============================================
     // Users
     // ============================================
