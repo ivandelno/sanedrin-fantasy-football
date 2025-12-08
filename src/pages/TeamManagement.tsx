@@ -64,8 +64,13 @@ export default function TeamManagementPage() {
     // Mutation
     const changeMutation = useMutation({
         mutationFn: async () => {
-            if (!user || !myStats?.participant_id || !selectedSeasonId || !selectedSubId || !selectedStarterId) throw new Error("Datos incompletos");
+            console.log("Attempting team change...", { selectedSeasonId, participantId: myStats?.participant_id, selectedStarterId, selectedSubId });
+            if (!user || !myStats?.participant_id || !selectedSeasonId || !selectedSubId || !selectedStarterId) {
+                console.error("Missing data for change");
+                throw new Error("Datos incompletos");
+            }
             await databaseService.performTeamChange(selectedSeasonId, myStats.participant_id, selectedStarterId, selectedSubId);
+            console.log("Team change successful");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['participants-teams-summary'] });
@@ -74,6 +79,7 @@ export default function TeamManagementPage() {
             resetChangeMode();
         },
         onError: (err) => {
+            console.error("Change mutation error:", err);
             setErrorMsg(err instanceof Error ? err.message : 'Error al realizar el cambio');
         }
     });
