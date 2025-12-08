@@ -259,7 +259,6 @@ export default function TeamManagementPage() {
                                     className="btn btn-primary flex items-center gap-2"
                                     onClick={() => changeMutation.mutate()}
                                     disabled={changeMutation.isPending}
-                                    style={{ color: 'white' }}
                                 >
                                     <FaSave /> Guardar
                                 </button>
@@ -396,17 +395,25 @@ export default function TeamManagementPage() {
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Sale</th>
-                                    <th>Entra</th>
+                                    <th style={{ width: '100px' }}>Fecha</th>
+                                    <th><FaExchangeAlt className="text-danger mr-2 inline" style={{ transform: 'rotate(180deg)', marginRight: '8px' }} /> Sale</th>
+                                    <th><FaExchangeAlt className="text-success mr-2 inline" style={{ marginRight: '8px' }} /> Entra</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {changesHistory.map((change: any) => (
                                     <tr key={change.id}>
-                                        <td>{format(new Date(change.executed_at), "dd/MM/yy", { locale: es })}</td>
-                                        <td>{change.from_team?.name || '???'}</td>
-                                        <td>{change.to_team?.name || '???'}</td>
+                                        <td style={{ fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                            {format(new Date(change.executed_at), "dd MMM", { locale: es })}
+                                        </td>
+                                        <td>
+                                            <span style={{ color: 'var(--color-danger-600)' }} className="mr-2">↓</span>
+                                            {change.from_team?.name || '???'}
+                                        </td>
+                                        <td>
+                                            <span style={{ color: 'var(--color-success-600)' }} className="mr-2">↑</span>
+                                            {change.to_team?.name || '???'}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

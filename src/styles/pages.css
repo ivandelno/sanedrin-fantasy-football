@@ -57,11 +57,37 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* Table Styles */
+/* Table Styles - General */
 .table-container {
     overflow-x: auto;
 }
 
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-3) var(--spacing-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+    background: var(--color-neutral-50);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table tbody tr:hover {
+    background: var(--color-neutral-50);
+}
+
+/* Legacy/Specific Table Styles (keeping just in case, but .table is now the main one) */
 .standings-table {
     width: 100%;
     border-collapse: collapse;
@@ -284,6 +310,15 @@
     }
     
     .stat-card {
+        background: var(--color-neutral-800);
+    }
+    
+    /* New general table dark mode styles */
+    .table th {
+        background: var(--color-neutral-800);
+    }
+    
+    .table tbody tr:hover {
         background: var(--color-neutral-800);
     }
 }
