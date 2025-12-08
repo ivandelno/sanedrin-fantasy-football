@@ -45,11 +45,11 @@ CREATE TABLE IF NOT EXISTS teams (
 );
 
 -- Season participants (users participating in a season)
-CREATE TABLE IF NOT EXISTS season_participants (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   season_id UUID REFERENCES seasons(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   joined_at TIMESTAMPTZ DEFAULT NOW(),
+  changes_used INTEGER DEFAULT 0,
   UNIQUE(season_id, user_id)
 );
 
