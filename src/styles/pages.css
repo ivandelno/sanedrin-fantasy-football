@@ -278,7 +278,27 @@
     .grid-cols-2 {
         grid-template-columns: 1fr;
     }
+
+    /* Mobile Table Fixes */
+    .table th,
+    .table td {
+        padding: var(--spacing-2) var(--spacing-1);
+        /* Reduced padding */
+        font-size: 0.9em;
+        /* Smaller font */
+    }
+
+    .table th:first-child,
+    .table td:first-child {
+        padding-left: var(--spacing-2);
+    }
+
+    .table th:last-child,
+    .table td:last-child {
+        padding-right: var(--spacing-2);
+    }
 }
+
 /* Highlighted row in standings table (user's row) */
 .standings-table .highlight-row {
     background: var(--color-primary-50) !important;
@@ -296,28 +316,28 @@
         background: var(--color-primary-900) !important;
         border-left-color: var(--color-primary-400);
     }
-    
+
     .standings-table .highlight-row:hover {
         background: var(--color-primary-800) !important;
     }
-    
+
     .standings-table th {
         background: var(--color-neutral-800);
     }
-    
+
     .standings-table tbody tr:hover {
         background: var(--color-neutral-800);
     }
-    
+
     .stat-card {
         background: var(--color-neutral-800);
     }
-    
+
     /* New general table dark mode styles */
     .table th {
         background: var(--color-neutral-800);
     }
-    
+
     .table tbody tr:hover {
         background: var(--color-neutral-800);
     }
@@ -331,9 +351,12 @@
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.7;
     }
