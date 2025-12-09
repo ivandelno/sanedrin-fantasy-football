@@ -228,6 +228,20 @@ class FootballApiService {
 
                 await databaseService.upsertMatch(matchData);
                 updatedMatches++;
+
+                // CRITICAL: If the match is FINISHED, we must force points recalculation.
+                // The database trigger usually only fires on UPDATE, so if we INSERT a match directly as FINISHED,
+                // or if we UPSERT and it was already FINISHED, the trigger might not fire or calculate correctly.
+                // We do this manually here to be 100% safe.
+                if (status === MatchStatus.FINISHED) {
+                    // We need the ID of the inserted/updated match. 
+                    // upsertMatch returns the full match object with ID.
+                    // IMPORTANT: We need to await this to ensure sequential processing.
+                    const savedMatch = await databaseService.upsertMatch(matchData);
+                    if (savedMatch && savedMatch.id) {
+                        await databaseService.calculateMatchPoints(savedMatch.id);
+                    }
+                }
             }
 
         } catch (error) {

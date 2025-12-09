@@ -10,66 +10,45 @@ const api = axios.create({
     }
 });
 
-async function checkRealAvila() {
+async function checkRealAvilaLastMatches() {
     try {
-        console.log("Searching for Real Ávila...");
-        const teamResponse = await api.get('/teams', {
+        const teamId = 9736; // Real Ávila
+
+        console.log(`Fetching LAST 10 fixtures for Real Ávila (ID: ${teamId})...`);
+
+        // API-Football allows getting "last X" matches for a team
+        const response = await api.get('/fixtures', {
             params: {
-                search: 'Real Avila'
+                team: teamId,
+                last: 10
             }
         });
 
-        const teams = teamResponse.data.response;
-        if (teams.length === 0) {
-            console.log("Team 'Real Avila' not found.");
+        const fixtures = response.data.response;
+
+        if (fixtures.length === 0) {
+            console.log("No matches found at all.");
             return;
         }
 
-        const teamData = teams[0];
-        console.log(`Found Team: ${teamData.team.name} (ID: ${teamData.team.id})`);
+        console.log(`Found ${fixtures.length} matches.`);
+        console.log("---------------------------------------------------");
 
-        const teamId = teamData.team.id;
+        fixtures.forEach(f => {
+            const home = f.teams.home.name;
+            const away = f.teams.away.name;
+            const score = `${f.goals.home ?? '-'} - ${f.goals.away ?? '-'}`;
+            const date = f.fixture.date;
+            const league = f.league.name;
+            const season = f.league.season;
 
-        // Check 2025 (as requested)
-        console.log(`\nFetching fixtures for team ID ${teamId} (Season 2025)...`);
-
-        // Let's try to get all matches for 2025 first to see what's there
-        const fixturesResponse2025 = await api.get('/fixtures', {
-            params: { team: teamId, season: 2025 }
+            console.log(`[${date}] (${season}) ${league}: ${home} vs ${away} [${score}]`);
         });
-
-        const allFixtures = fixturesResponse2025.data.response;
-
-        if (allFixtures.length > 0) {
-            console.log(`Found ${allFixtures.length} matches in 2025.`);
-
-            // Check for today's match (2025-12-07)
-            const todayStr = '2025-12-07';
-            console.log(`Checking for match on ${todayStr}...`);
-
-            const todaysMatch = allFixtures.find(f => f.fixture.date.startsWith(todayStr));
-
-            if (todaysMatch) {
-                console.log(`\nMATCH FOUND TODAY!`);
-                console.log(`- Date: ${todaysMatch.fixture.date}`);
-                console.log(`- Status: ${todaysMatch.fixture.status.long} (${todaysMatch.fixture.status.short})`);
-                console.log(`- League: ${todaysMatch.league.name} (ID: ${todaysMatch.league.id})`);
-                console.log(`- Teams: ${todaysMatch.teams.home.name} ${todaysMatch.goals.home ?? '-'} vs ${todaysMatch.goals.away ?? '-'} ${todaysMatch.teams.away.name}`);
-            } else {
-                console.log(`No match found specifically for today (${todayStr}).`);
-                console.log("Here are the last 3 matches:");
-                allFixtures.slice(-3).forEach(f => {
-                    console.log(`- [${f.fixture.date}] ${f.teams.home.name} vs ${f.teams.away.name} (${f.league.name})`);
-                });
-            }
-
-        } else {
-            console.log("No matches found in 2025.");
-        }
+        console.log("---------------------------------------------------");
 
     } catch (error) {
         console.error("Error:", error.response ? error.response.data : error.message);
     }
 }
 
-checkRealAvila();
+checkRealAvilaLastMatches();
