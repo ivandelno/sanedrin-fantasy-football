@@ -6,15 +6,19 @@
 -- 1. Devolver 'rank_position' en lugar de 'position' (coincidiendo con el frontend).
 -- 2. Incluir la columna 'changes_used' que faltaba.
 
+-- 1. Primero borramos la función antigua para permitir el cambio de tipos
+DROP FUNCTION IF EXISTS get_participant_standings(UUID);
+
+-- 2. Creamos la nueva versión con 'rank_position' y 'changes_used'
 CREATE OR REPLACE FUNCTION get_participant_standings(p_season_id UUID)
 RETURNS TABLE (
   participant_id UUID,
   user_id UUID,
   username TEXT,
   total_points BIGINT,
-  rank_position INTEGER, -- Renombrado para coincidir con React
+  rank_position INTEGER, -- Renombrado
   matches_played BIGINT,
-  changes_used INTEGER   -- Añadido
+  changes_used INTEGER   -- Novedad
 ) AS $$
 BEGIN
   RETURN QUERY
@@ -35,7 +39,7 @@ BEGIN
       COALESCE(ps.total_points, 0) as total_points,
       COALESCE(ps.matches_played, 0) as matches_played,
       COALESCE(sp.changes_used, 0) as changes_used, -- Obtener cambios usados
-      ROW_NUMBER() OVER (ORDER BY COALESCE(ps.total_points, 0) DESC, sp.created_at ASC) as val_position
+      ROW_NUMBER() OVER (ORDER BY COALESCE(ps.total_points, 0) DESC, u.username ASC) as val_position
     FROM season_participants sp
     JOIN users u ON u.id = sp.user_id
     LEFT JOIN points_summary ps ON ps.participant_id = sp.id
