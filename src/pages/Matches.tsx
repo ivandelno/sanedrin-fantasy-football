@@ -66,9 +66,9 @@ export default function MatchesPage() {
 
     const handleSync = async () => {
         console.log('=== handleSync START ===');
-        console.log('Season ID:', season?.id);
-        console.log('User ID:', user?.id);
-        console.log('LINE 69 - After first log');
+        // console.log('Season ID:', season?.id); // Removed as per instruction to simplify
+        // console.log('User ID:', user?.id); // Removed as per instruction to simplify
+        // console.log('LINE 69 - After first log'); // Removed as per instruction to simplify
         if (!season) {
             console.log('No season, returning');
             return;
@@ -76,73 +76,62 @@ export default function MatchesPage() {
 
         // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
+        setSyncResult(null); // Moved here from inside setTimeout
 
-        // Use setTimeout to break out of the current execution context
-        setTimeout(async () => {
-            console.log('About to show confirm...');
-            const confirmed = window.confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.');
-            console.log('Confirmed:', confirmed);
+        // Use setTimeout to break out of the current execution context - REMOVED
+        // setTimeout(async () => { // REMOVED
+        // console.log('About to show confirm...'); // REMOVED
+        // const confirmed = window.confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.'); // REMOVED
+        // console.log('Confirmed:', confirmed); // REMOVED
 
-            if (!confirmed) {
-                setIsSyncing(false);
-                return;
-            }
+        // if (!confirmed) { // REMOVED
+        //     setIsSyncing(false); // REMOVED
+        //     return; // REMOVED
+        // } // REMOVED
 
-            setSyncResult(null);
+        // setSyncResult(null); // Moved above
 
-            try {
-                console.log('Starting sync...');
-                const result = await footballApiService.syncMatches(season.id);
-                console.log('Sync result:', result);
-                setSyncResult(result);
-                queryClient.invalidateQueries({ queryKey: ['matches'] });
-                alert(`Sincronización completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
-            } catch (error) {
-                console.error('Sync error:', error);
-                alert('Error al sincronizar partidos. Revisa la consola.');
-            } finally {
-                setIsSyncing(false);
-            }
-        }, 100);
+        try {
+            console.log('Starting sync...');
+            const result = await footballApiService.syncMatches(season.id);
+            console.log('Sync result:', result);
+            setSyncResult(result);
+            queryClient.invalidateQueries({ queryKey: ['matches'] });
+            alert(`Sincronización completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+        } catch (error) {
+            console.error('Sync error:', error);
+            alert('Error al sincronizar partidos. Revisa la consola.');
+        } finally {
+            setIsSyncing(false);
+        }
+        // }, 100); // REMOVED
     };
 
 
 
     const handleSyncHistory = async () => {
-        console.log('handleSyncHistory called', { season, user });
+        console.log('handleSyncHistory called');
         if (!season) {
             console.log('No season, returning');
             return;
         }
 
-        // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
+        setSyncResult(null);
 
-        // Use setTimeout to break out of the current execution context
-        setTimeout(async () => {
-            const confirmed = window.confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.');
-
-            if (!confirmed) {
-                setIsSyncing(false);
-                return;
-            }
-
-            setSyncResult(null);
-
-            try {
-                console.log('Starting history sync...');
-                const result = await footballApiService.syncHistory(season.id);
-                console.log('History sync result:', result);
-                setSyncResult(result);
-                queryClient.invalidateQueries({ queryKey: ['matches'] });
-                alert(`Sincronización Histórica completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
-            } catch (error) {
-                console.error('History Sync error:', error);
-                alert('Error al sincronizar histórico. Revisa la consola.');
-            } finally {
-                setIsSyncing(false);
-            }
-        }, 100);
+        try {
+            console.log('Starting history sync...');
+            const result = await footballApiService.syncHistory(season.id);
+            console.log('History sync result:', result);
+            setSyncResult(result);
+            queryClient.invalidateQueries({ queryKey: ['matches'] });
+            alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+        } catch (error) {
+            console.error('History Sync error:', error);
+            alert('Error al sincronizar histórico. Revisa la consola.');
+        } finally {
+            setIsSyncing(false);
+        }
     };
 
     // Get available matchdays for selected league
