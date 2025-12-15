@@ -66,7 +66,14 @@ export default function MatchesPage() {
 
     const handleSync = async () => {
         console.log('handleSync called', { season, user });
-        if (!season || !confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.')) return;
+        if (!season) {
+            console.log('No season, returning');
+            return;
+        }
+        console.log('About to show confirm...');
+        const confirmed = confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.');
+        console.log('Confirmed:', confirmed);
+        if (!confirmed) return;
 
         setIsSyncing(true);
         setSyncResult(null);
