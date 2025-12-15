@@ -65,7 +65,10 @@ export default function MatchesPage() {
     };
 
     const handleSync = async () => {
-        console.log('handleSync called', { season, user });
+        console.log('=== handleSync START ===');
+        console.log('Season ID:', season?.id);
+        console.log('User ID:', user?.id);
+        console.log('LINE 69 - After first log');
         if (!season) {
             console.log('No season, returning');
             return;
