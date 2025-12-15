@@ -65,13 +65,16 @@ export default function MatchesPage() {
     };
 
     const handleSync = async () => {
+        console.log('handleSync called', { season, user });
         if (!season || !confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.')) return;
 
         setIsSyncing(true);
         setSyncResult(null);
 
         try {
+            console.log('Starting sync...');
             const result = await footballApiService.syncMatches(season.id);
+            console.log('Sync result:', result);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
             alert(`Sincronización completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
@@ -86,13 +89,16 @@ export default function MatchesPage() {
 
 
     const handleSyncHistory = async () => {
+        console.log('handleSyncHistory called', { season, user });
         if (!season || !confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.')) return;
 
         setIsSyncing(true);
         setSyncResult(null);
 
         try {
+            console.log('Starting history sync...');
             const result = await footballApiService.syncHistory(season.id);
+            console.log('History sync result:', result);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
             alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
