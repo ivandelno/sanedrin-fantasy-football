@@ -29,8 +29,8 @@ export default function MatchesPage() {
         enabled: !!season
     });
 
-    // Get user's selected teams
-    const { data: participantData } = useParticipantSelections(user?.id, season?.id, !!user && !!season);
+    // Get user's selected teams (disabled during sync to prevent re-renders)
+    const { data: participantData } = useParticipantSelections(user?.id, season?.id, !!user && !!season && !isSyncing);
 
     // Extract team IDs and roles from selections for easy lookup
     const userTeamIds = useMemo(() => {
