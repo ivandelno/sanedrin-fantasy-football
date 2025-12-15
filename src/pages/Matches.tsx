@@ -65,36 +65,13 @@ export default function MatchesPage() {
     };
 
     const handleSync = async () => {
-        console.log('=== handleSync START ===');
-        // console.log('Season ID:', season?.id); // Removed as per instruction to simplify
-        // console.log('User ID:', user?.id); // Removed as per instruction to simplify
-        // console.log('LINE 69 - After first log'); // Removed as per instruction to simplify
-        if (!season) {
-            console.log('No season, returning');
-            return;
-        }
+        if (!season) return;
 
-        // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
-        setSyncResult(null); // Moved here from inside setTimeout
-
-        // Use setTimeout to break out of the current execution context - REMOVED
-        // setTimeout(async () => { // REMOVED
-        // console.log('About to show confirm...'); // REMOVED
-        // const confirmed = window.confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.'); // REMOVED
-        // console.log('Confirmed:', confirmed); // REMOVED
-
-        // if (!confirmed) { // REMOVED
-        //     setIsSyncing(false); // REMOVED
-        //     return; // REMOVED
-        // } // REMOVED
-
-        // setSyncResult(null); // Moved above
+        setSyncResult(null);
 
         try {
-            console.log('Starting sync...');
             const result = await footballApiService.syncMatches(season.id);
-            console.log('Sync result:', result);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
             alert(`Sincronización completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
@@ -104,25 +81,18 @@ export default function MatchesPage() {
         } finally {
             setIsSyncing(false);
         }
-        // }, 100); // REMOVED
     };
 
 
 
     const handleSyncHistory = async () => {
-        console.log('handleSyncHistory called');
-        if (!season) {
-            console.log('No season, returning');
-            return;
-        }
+        if (!season) return;
 
         setIsSyncing(true);
         setSyncResult(null);
 
         try {
-            console.log('Starting history sync...');
             const result = await footballApiService.syncHistory(season.id);
-            console.log('History sync result:', result);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
             alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
