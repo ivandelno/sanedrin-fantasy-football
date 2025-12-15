@@ -73,12 +73,19 @@ export default function MatchesPage() {
             console.log('No season, returning');
             return;
         }
+
+        // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
+        setIsSyncing(true);
+
         console.log('About to show confirm...');
         const confirmed = confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.');
         console.log('Confirmed:', confirmed);
-        if (!confirmed) return;
 
-        setIsSyncing(true);
+        if (!confirmed) {
+            setIsSyncing(false);
+            return;
+        }
+
         setSyncResult(null);
 
         try {
@@ -100,9 +107,21 @@ export default function MatchesPage() {
 
     const handleSyncHistory = async () => {
         console.log('handleSyncHistory called', { season, user });
-        if (!season || !confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.')) return;
+        if (!season) {
+            console.log('No season, returning');
+            return;
+        }
 
+        // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
+
+        const confirmed = confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.');
+
+        if (!confirmed) {
+            setIsSyncing(false);
+            return;
+        }
+
         setSyncResult(null);
 
         try {
