@@ -278,25 +278,26 @@ export default function MatchesPage() {
                     <h2>Partidos</h2>
                     <p className="text-secondary">Resultados y próximos encuentros - {season.name}</p>
                 </div>
-                {user?.is_admin && (
-                    <div className="admin-actions" style={{ display: 'flex', gap: '1rem' }}>
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleSync}
-                            disabled={isSyncing}
-                        >
-                            {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
-                        </button>
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleSyncHistory}
-                            disabled={isSyncing}
-                        >
-                            {isSyncing ? 'Actualizando...' : 'Actualizar Histórico'}
-                        </button>
-                    </div>
-                )}
             </div>
+
+            {user?.is_admin && (
+                <div className="mb-4" style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                    >
+                        {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
+                    </button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleSyncHistory}
+                        disabled={isSyncing}
+                    >
+                        {isSyncing ? 'Actualizando...' : 'Actualizar Histórico'}
+                    </button>
+                </div>
+            )}
 
             {
                 syncResult && syncResult.errors.length > 0 && (
