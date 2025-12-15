@@ -1,0 +1,8 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-6);
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+}

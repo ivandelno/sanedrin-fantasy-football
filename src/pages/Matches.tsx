@@ -273,7 +273,7 @@ export default function MatchesPage() {
                     <p className="text-secondary">Resultados y próximos encuentros - {season.name}</p>
                 </div>
                 {user?.is_admin && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div className="admin-actions" style={{ display: 'flex', gap: '1rem' }}>
                         <button
                             className="btn btn-primary"
                             onClick={handleSync}
@@ -282,27 +282,29 @@ export default function MatchesPage() {
                             {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
                         </button>
                         <button
-                            className="btn btn-secondary"
+                            className="btn btn-primary"
                             onClick={handleSyncHistory}
                             disabled={isSyncing}
                         >
-                            {isSyncing ? '...' : 'Actualizar Histórico'}
+                            {isSyncing ? 'Actualizando...' : 'Actualizar Histórico'}
                         </button>
                     </div>
                 )}
             </div>
 
-            {syncResult && syncResult.errors.length > 0 && (
-                <div className="card mb-4 border-warning">
-                    <h4>Advertencias de Sincronización</h4>
-                    <ul className="text-sm text-warning">
-                        {syncResult.errors.slice(0, 5).map((err, i) => (
-                            <li key={i}>{err}</li>
-                        ))}
-                        {syncResult.errors.length > 5 && <li>...y {syncResult.errors.length - 5} más</li>}
-                    </ul>
-                </div>
-            )}
+            {
+                syncResult && syncResult.errors.length > 0 && (
+                    <div className="card mb-4 border-warning">
+                        <h4>Advertencias de Sincronización</h4>
+                        <ul className="text-sm text-warning">
+                            {syncResult.errors.slice(0, 5).map((err, i) => (
+                                <li key={i}>{err}</li>
+                            ))}
+                            {syncResult.errors.length > 5 && <li>...y {syncResult.errors.length - 5} más</li>}
+                        </ul>
+                    </div>
+                )
+            }
 
             <div className="card mb-4">
                 <div className="filters">
@@ -385,57 +387,59 @@ export default function MatchesPage() {
                 </div>
             </div>
 
-            {isLoading ? (
-                <div className="card">
-                    <p className="text-secondary">Cargando partidos...</p>
-                </div>
-            ) : groupedMatches.length === 0 ? (
-                <div className="card">
-                    <p className="text-secondary">
-                        No hay partidos disponibles para el filtro seleccionado.
-                    </p>
-                </div>
-            ) : (
-                groupedMatches.map(group => (
-                    <div key={`${group.league}-${group.matchday}`} className="card mb-4">
-                        <h3>{getLeagueName(group.league)} - Jornada {group.matchday}</h3>
-                        <div className="matches-list">
-                            {group.matches.map(match => (
-                                <div key={match.id} className="match-item">
-                                    <div className="match-time-status">
-                                        <div className="match-time">
-                                            {formatMatchTime(match.utc_datetime, match.status)}
-                                        </div>
-                                        {getStatusBadge(match.status)}
-                                    </div>
-
-                                    <div className="match-teams">
-                                        <span
-                                            className="team-name"
-                                            style={getTeamStyle(match.home_team_id)}
-                                        >
-                                            {match.home_team.name}
-                                        </span>
-                                        {(match.status === 'FINISHED' || match.status === 'LIVE') && match.home_score !== null && match.away_score !== null ? (
-                                            <span className={`match-score ${match.status === 'LIVE' ? 'live' : ''}`}>
-                                                {match.home_score} - {match.away_score}
-                                            </span>
-                                        ) : (
-                                            <span className="match-vs">vs</span>
-                                        )}
-                                        <span
-                                            className="team-name"
-                                            style={getTeamStyle(match.away_team_id)}
-                                        >
-                                            {match.away_team.name}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+            {
+                isLoading ? (
+                    <div className="card">
+                        <p className="text-secondary">Cargando partidos...</p>
                     </div>
-                ))
-            )}
-        </div>
+                ) : groupedMatches.length === 0 ? (
+                    <div className="card">
+                        <p className="text-secondary">
+                            No hay partidos disponibles para el filtro seleccionado.
+                        </p>
+                    </div>
+                ) : (
+                    groupedMatches.map(group => (
+                        <div key={`${group.league}-${group.matchday}`} className="card mb-4">
+                            <h3>{getLeagueName(group.league)} - Jornada {group.matchday}</h3>
+                            <div className="matches-list">
+                                {group.matches.map(match => (
+                                    <div key={match.id} className="match-item">
+                                        <div className="match-time-status">
+                                            <div className="match-time">
+                                                {formatMatchTime(match.utc_datetime, match.status)}
+                                            </div>
+                                            {getStatusBadge(match.status)}
+                                        </div>
+
+                                        <div className="match-teams">
+                                            <span
+                                                className="team-name"
+                                                style={getTeamStyle(match.home_team_id)}
+                                            >
+                                                {match.home_team.name}
+                                            </span>
+                                            {(match.status === 'FINISHED' || match.status === 'LIVE') && match.home_score !== null && match.away_score !== null ? (
+                                                <span className={`match-score ${match.status === 'LIVE' ? 'live' : ''}`}>
+                                                    {match.home_score} - {match.away_score}
+                                                </span>
+                                            ) : (
+                                                <span className="match-vs">vs</span>
+                                            )}
+                                            <span
+                                                className="team-name"
+                                                style={getTeamStyle(match.away_team_id)}
+                                            >
+                                                {match.away_team.name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                )
+            }
+        </div >
     );
 }

@@ -383,6 +383,21 @@ select:focus {
     }
 }
 
+.btn-secondary {
+    background: var(--color-neutral-600);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: var(--color-neutral-700);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
 @keyframes slideInFromBottom {
     from {
         transform: translateY(100%);
