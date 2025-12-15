@@ -1,31 +1,15 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirigiendo...</title>
   <script type="text/javascript">
-    // Script para manejar el problema de F5/Recarga en GitHub Pages para SPAs.
-
-    // El nombre del repositorio (subdirectorio) en GitHub Pages
-    const repoName = '/sanedrin-fantasy-football/';
-
-    // Obtener la ruta de la URL actual
-    const path = window.location.pathname;
-
-    // Verificar si la ruta actual coincide con el inicio del repositorio
-    if (path.startsWith(repoName)) {
-      // Reconstruir la ruta eliminando el nombre del repositorio
-      const subPath = path.substring(repoName.length);
-
-      // Si hay una subruta, redirigir a index.html y usar el path como hash
-      if (subPath && subPath !== 'index.html') {
-        window.location.replace(repoName + 'index.html#' + subPath);
-      }
-    }
+    // Redirigir a la página principal para que React Router maneje la ruta
+    window.location.replace('/');
   </script>
 </head>
-
 <body>
   <p>Redirigiendo a la página principal...</p>
 </body>
-
 </html>
