@@ -1,9 +1,9 @@
 name: Sync Football Matches
 
 on:
-  # Run every 15 minutes
+  # Run every hour
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 * * * *'
   
   # Allow manual trigger
   workflow_dispatch:
