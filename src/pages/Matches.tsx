@@ -282,14 +282,22 @@ export default function MatchesPage() {
                     <div className="admin-actions" style={{ display: 'flex', gap: '1rem' }}>
                         <button
                             className="btn btn-primary"
-                            onClick={handleSync}
+                            onClick={() => {
+                                console.log('BUTTON CLICKED - Actualizar Partidos');
+                                alert('Botón Actualizar Partidos clickeado');
+                                handleSync();
+                            }}
                             disabled={isSyncing}
                         >
                             {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
                         </button>
                         <button
                             className="btn btn-primary"
-                            onClick={handleSyncHistory}
+                            onClick={() => {
+                                console.log('BUTTON CLICKED - Actualizar Histórico');
+                                alert('Botón Actualizar Histórico clickeado');
+                                handleSyncHistory();
+                            }}
                             disabled={isSyncing}
                         >
                             {isSyncing ? 'Actualizando...' : 'Actualizar Histórico'}
