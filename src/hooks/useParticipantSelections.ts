@@ -14,9 +14,14 @@ export function useParticipantSelections(userId: string | undefined, seasonId: s
                 .select('id')
                 .eq('user_id', userId)
                 .eq('season_id', seasonId)
-                .single();
+                .maybeSingle();
 
-            if (participantError || !participant) {
+            if (participantError) {
+                console.error('Error fetching participant:', participantError);
+                return null;
+            }
+
+            if (!participant) {
                 console.log('No participant found for user in this season');
                 return null;
             }
