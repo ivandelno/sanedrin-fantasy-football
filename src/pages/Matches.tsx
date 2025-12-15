@@ -74,7 +74,10 @@ export default function MatchesPage() {
             const result = await footballApiService.syncMatches(season.id);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
-            alert(`Sincronización completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+            alert(`Sincronización completada.
+Total: ${result.total}
+Actualizados: ${result.updated}
+Errores: ${result.errors.length}`);
         } catch (error) {
             console.error('Sync error:', error);
             alert('Error al sincronizar partidos. Revisa la consola.');
@@ -95,7 +98,10 @@ export default function MatchesPage() {
             const result = await footballApiService.syncHistory(season.id);
             setSyncResult(result);
             queryClient.invalidateQueries({ queryKey: ['matches'] });
-            alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+            alert(`Sincronización Histórica completada.
+Total: ${result.total}
+Actualizados: ${result.updated}
+Errores: ${result.errors.length}`);
         } catch (error) {
             console.error('History Sync error:', error);
             alert('Error al sincronizar histórico. Revisa la consola.');
