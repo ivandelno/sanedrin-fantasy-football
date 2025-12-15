@@ -77,30 +77,33 @@ export default function MatchesPage() {
         // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
 
-        console.log('About to show confirm...');
-        const confirmed = confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.');
-        console.log('Confirmed:', confirmed);
+        // Use setTimeout to break out of the current execution context
+        setTimeout(async () => {
+            console.log('About to show confirm...');
+            const confirmed = window.confirm('¿Estás seguro de que quieres actualizar los partidos desde la API oficial? Esto puede tardar unos segundos.');
+            console.log('Confirmed:', confirmed);
 
-        if (!confirmed) {
-            setIsSyncing(false);
-            return;
-        }
+            if (!confirmed) {
+                setIsSyncing(false);
+                return;
+            }
 
-        setSyncResult(null);
+            setSyncResult(null);
 
-        try {
-            console.log('Starting sync...');
-            const result = await footballApiService.syncMatches(season.id);
-            console.log('Sync result:', result);
-            setSyncResult(result);
-            queryClient.invalidateQueries({ queryKey: ['matches'] });
-            alert(`Sincronización completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
-        } catch (error) {
-            console.error('Sync error:', error);
-            alert('Error al sincronizar partidos. Revisa la consola.');
-        } finally {
-            setIsSyncing(false);
-        }
+            try {
+                console.log('Starting sync...');
+                const result = await footballApiService.syncMatches(season.id);
+                console.log('Sync result:', result);
+                setSyncResult(result);
+                queryClient.invalidateQueries({ queryKey: ['matches'] });
+                alert(`Sincronización completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
+            } catch (error) {
+                console.error('Sync error:', error);
+                alert('Error al sincronizar partidos. Revisa la consola.');
+            } finally {
+                setIsSyncing(false);
+            }
+        }, 100);
     };
 
 
@@ -115,28 +118,31 @@ export default function MatchesPage() {
         // Set syncing BEFORE confirm to prevent re-renders that cancel the dialog
         setIsSyncing(true);
 
-        const confirmed = confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.');
+        // Use setTimeout to break out of the current execution context
+        setTimeout(async () => {
+            const confirmed = window.confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.');
 
-        if (!confirmed) {
-            setIsSyncing(false);
-            return;
-        }
+            if (!confirmed) {
+                setIsSyncing(false);
+                return;
+            }
 
-        setSyncResult(null);
+            setSyncResult(null);
 
-        try {
-            console.log('Starting history sync...');
-            const result = await footballApiService.syncHistory(season.id);
-            console.log('History sync result:', result);
-            setSyncResult(result);
-            queryClient.invalidateQueries({ queryKey: ['matches'] });
-            alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
-        } catch (error) {
-            console.error('History Sync error:', error);
-            alert('Error al sincronizar histórico. Revisa la consola.');
-        } finally {
-            setIsSyncing(false);
-        }
+            try {
+                console.log('Starting history sync...');
+                const result = await footballApiService.syncHistory(season.id);
+                console.log('History sync result:', result);
+                setSyncResult(result);
+                queryClient.invalidateQueries({ queryKey: ['matches'] });
+                alert(`Sincronización Histórica completada.\\nTotal: ${result.total}\\nActualizados: ${result.updated}\\nErrores: ${result.errors.length}`);
+            } catch (error) {
+                console.error('History Sync error:', error);
+                alert('Error al sincronizar histórico. Revisa la consola.');
+            } finally {
+                setIsSyncing(false);
+            }
+        }, 100);
     };
 
     // Get available matchdays for selected league
