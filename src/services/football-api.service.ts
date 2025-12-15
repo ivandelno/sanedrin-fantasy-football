@@ -147,18 +147,14 @@ class FootballApiService {
     }
 
     /**
-     * Sync matches from API to Database
-     * Note: Free API plan only supports date-based queries
+     * Sync matches from API to Database for a specific date
      */
-    async syncMatches(dbSeasonId: string): Promise<{ total: number; updated: number; errors: string[] }> {
+    private async _syncDate(dbSeasonId: string, date: Date): Promise<{ total: number; updated: number; errors: string[] }> {
         const errors: string[] = [];
         let totalMatches = 0;
         let updatedMatches = 0;
 
-        // Sync only today's date (for automatic updates every 15 min)
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0];
-
+        const dateStr = date.toISOString().split('T')[0];
         console.log(`Syncing matches for: ${dateStr}`);
 
         try {
@@ -251,6 +247,33 @@ class FootballApiService {
         }
 
         return { total: totalMatches, updated: updatedMatches, errors };
+    }
+
+    /**
+     * Sync matches from API to Database (Today only)
+     */
+    async syncMatches(dbSeasonId: string): Promise<{ total: number; updated: number; errors: string[] }> {
+        return this._syncDate(dbSeasonId, new Date());
+    }
+
+    /**
+     * Sync matches from API to Database (Today + Yesterday)
+     */
+    async syncHistory(dbSeasonId: string): Promise<{ total: number; updated: number; errors: string[] }> {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        console.log('Starting history sync...');
+
+        const resultToday = await this._syncDate(dbSeasonId, today);
+        const resultYesterday = await this._syncDate(dbSeasonId, yesterday);
+
+        return {
+            total: resultToday.total + resultYesterday.total,
+            updated: resultToday.updated + resultYesterday.updated,
+            errors: [...resultToday.errors, ...resultYesterday.errors]
+        };
     }
 }
 

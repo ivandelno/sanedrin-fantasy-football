@@ -83,6 +83,27 @@ export default function MatchesPage() {
         }
     };
 
+
+
+    const handleSyncHistory = async () => {
+        if (!season || !confirm('¿Estás seguro de que quieres actualizar el histórico (ayer y hoy)? Esto puede tardar unos segundos.')) return;
+
+        setIsSyncing(true);
+        setSyncResult(null);
+
+        try {
+            const result = await footballApiService.syncHistory(season.id);
+            setSyncResult(result);
+            queryClient.invalidateQueries({ queryKey: ['matches'] });
+            alert(`Sincronización Histórica completada.\nTotal: ${result.total}\nActualizados: ${result.updated}\nErrores: ${result.errors.length}`);
+        } catch (error) {
+            console.error('History Sync error:', error);
+            alert('Error al sincronizar histórico. Revisa la consola.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     // Get available matchdays for selected league
     const availableMatchdays = useMemo(() => {
         if (!matches || selectedLeague === 'all') return [];
@@ -252,13 +273,22 @@ export default function MatchesPage() {
                     <p className="text-secondary">Resultados y próximos encuentros - {season.name}</p>
                 </div>
                 {user?.is_admin && (
-                    <button
-                        className="btn btn-primary"
-                        onClick={handleSync}
-                        disabled={isSyncing}
-                    >
-                        {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleSync}
+                            disabled={isSyncing}
+                        >
+                            {isSyncing ? 'Actualizando...' : 'Actualizar Partidos'}
+                        </button>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={handleSyncHistory}
+                            disabled={isSyncing}
+                        >
+                            {isSyncing ? '...' : 'Actualizar Histórico'}
+                        </button>
+                    </div>
                 )}
             </div>
 

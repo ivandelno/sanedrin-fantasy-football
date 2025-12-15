@@ -6,7 +6,7 @@ import { LEAGUE_IDS } from '../types/api.types';
 // Support both Vite (import.meta.env) and Node.js (process.env)
 const API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FOOTBALL_API_KEY)
     || process.env.VITE_FOOTBALL_API_KEY
-    || '43d7cc6a49014761160dcebbe549a76a';
+    || 'e223a5ff8ea64524bf596aa5abc37aad';
 const API_BASE_URL = 'https://v3.football.api-sports.io';
 
 export const footballApi = axios.create({
